@@ -2320,3 +2320,71 @@ class C extends A{
 
 ```
 
+## 抽象类
+
+java中有一个关键字 abstract，它的意思就是抽象，可以用来修饰类和成员方法
+
+用abstract修饰类时，这个类就是抽象类，修饰方法 ，这个方法就是抽象方法
+
+### 特点
+
+抽象类中不一定有抽象方法，但是有抽象方法的类一定是抽象类
+
+类该有的成员，抽象类都可以有
+
+抽象类不能创建对象，仅仅是作为父类，让子类继承并实现其抽象方法。
+
+一个类继承一个抽象类，必须要实现所有的抽象方法，否则这个类也必须定义成抽象类
+
+### 应用场景和好处
+
+父类知道每个子类都要做某个行为，但是子类的情况都不一样，父类就定义成抽象方法，交给子类去重写实现，设计这样的抽象类，目的是为了更好的支持多态。
+
+```java
+
+public class AbstractDemo {
+    public static void main(String[] args) {
+        Animal dog=new Dog();
+        dog.setName("神犬");
+        Animal cat=new Cat();
+        cat.setName("汤姆");
+        dog.action();
+        cat.action();
+    }
+}
+
+abstract class Animal{
+    String name;
+
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public abstract void action();
+}
+
+class Dog extends Animal{
+
+
+
+    @Override
+    public void action() {
+        System.out.println("狗"+name+"的动作！");
+    }
+}
+class Cat extends Animal{
+
+    @Override
+    public void action() {
+        System.out.println("猫"+name+"的动作！");
+    }
+}
+
+
+```
+
