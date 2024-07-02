@@ -2401,9 +2401,9 @@ class Cat extends animals {
 
 public class TempAbstractDemo {
     public static void main(String[] args) {
-        animalAction cat=new cat();
+        animalAction cat=new CatAction();
         cat.setName("汤姆猫");
-        animalAction dog=new cat();
+        animalAction dog=new DogAction();
         dog.setName("嗨皮狗");
         cat.action();
         dog.action();
@@ -2425,19 +2425,19 @@ abstract class animalAction {
     final void action(){
         System.out.println("我是"+name);
         System.out.println("哥们饿了，要吃饭");
-        eat();
+        System.out.println(eat());
         System.out.println("完蛋了，吃多了");
     }
     abstract String eat();
 }
-class cat extends animalAction{
+class CatAction extends animalAction{
 
     @Override
     String eat() {
         return "吃猫粮，猛猛吃";
     }
 }
-class dog extends animalAction{
+class DogAction extends animalAction{
 
     @Override
     String eat() {
