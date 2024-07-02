@@ -2344,16 +2344,16 @@ java中有一个关键字 abstract，它的意思就是抽象，可以用来修�
 
 public class AbstractDemo {
     public static void main(String[] args) {
-        Animal dog=new Dog();
+        animals dog=new Dog();
         dog.setName("神犬");
-        Animal cat=new Cat();
+        animals cat=new Cat();
         cat.setName("汤姆");
         dog.action();
         cat.action();
     }
 }
 
-abstract class Animal{
+abstract class animals{
     String name;
 
 
@@ -2368,7 +2368,7 @@ abstract class Animal{
     public abstract void action();
 }
 
-class Dog extends Animal{
+class Dog extends animals {
 
 
 
@@ -2376,8 +2376,10 @@ class Dog extends Animal{
     public void action() {
         System.out.println("狗"+name+"的动作！");
     }
+
+
 }
-class Cat extends Animal{
+class Cat extends animals {
 
     @Override
     public void action() {
@@ -2385,6 +2387,63 @@ class Cat extends Animal{
     }
 }
 
+```
+
+主要应用场景：模板方法设计模式
+
+为了解决代码重复问题，例：大部分代码相同，仅仅是中间部分代码不同，就可以使用这个设计模式来进行优化
+
+写法：定义一个抽象类，里面定义两个方法，一个抽象方法：让子类实现不同的方法。 一个模板方法，放相同的代码和抽象方法。
+
+且模板方法一般使用final修饰，防止子类重写
+
+```java
+
+public class TempAbstractDemo {
+    public static void main(String[] args) {
+        animalAction cat=new cat();
+        cat.setName("汤姆猫");
+        animalAction dog=new cat();
+        dog.setName("嗨皮狗");
+        cat.action();
+        dog.action();
+    }
+}
+
+abstract class animalAction {
+    String name;
+
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    final void action(){
+        System.out.println("我是"+name);
+        System.out.println("哥们饿了，要吃饭");
+        eat();
+        System.out.println("完蛋了，吃多了");
+    }
+    abstract String eat();
+}
+class cat extends animalAction{
+
+    @Override
+    String eat() {
+        return "吃猫粮，猛猛吃";
+    }
+}
+class dog extends animalAction{
+
+    @Override
+    String eat() {
+        return "吃狗粮，猛猛吃";
+    }
+}
 
 ```
 

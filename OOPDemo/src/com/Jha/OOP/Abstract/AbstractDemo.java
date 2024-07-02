@@ -2,16 +2,16 @@ package com.Jha.OOP.Abstract;
 
 public class AbstractDemo {
     public static void main(String[] args) {
-        Animal dog=new Dog();
+        animals dog=new Dog();
         dog.setName("神犬");
-        Animal cat=new Cat();
+        animals cat=new Cat();
         cat.setName("汤姆");
         dog.action();
         cat.action();
     }
 }
 
-abstract class Animal{
+abstract class animals{
     String name;
 
 
@@ -26,7 +26,7 @@ abstract class Animal{
     public abstract void action();
 }
 
-class Dog extends Animal{
+class Dog extends animals {
 
 
 
@@ -34,8 +34,10 @@ class Dog extends Animal{
     public void action() {
         System.out.println("狗"+name+"的动作！");
     }
+
+
 }
-class Cat extends Animal{
+class Cat extends animals {
 
     @Override
     public void action() {
