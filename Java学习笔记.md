@@ -2320,3 +2320,343 @@ class C extends A{
 
 ```
 
+## 抽象类
+
+java中有一个关键字 abstract，它的意思就是抽象，可以用来修饰类和成员方法
+
+用abstract修饰类时，这个类就是抽象类，修饰方法 ，这个方法就是抽象方法
+
+### 特点
+
+抽象类中不一定有抽象方法，但是有抽象方法的类一定是抽象类
+
+类该有的成员，抽象类都可以有
+
+抽象类不能创建对象，仅仅是作为父类，让子类继承并实现其抽象方法。
+
+一个类继承一个抽象类，必须要实现所有的抽象方法，否则这个类也必须定义成抽象类
+
+### 应用场景和好处
+
+父类知道每个子类都要做某个行为，但是子类的情况都不一样，父类就定义成抽象方法，交给子类去重写实现，设计这样的抽象类，目的是为了更好的支持多态。
+
+```java
+
+public class AbstractDemo {
+    public static void main(String[] args) {
+        animals dog=new Dog();
+        dog.setName("神犬");
+        animals cat=new Cat();
+        cat.setName("汤姆");
+        dog.action();
+        cat.action();
+    }
+}
+
+abstract class animals{
+    String name;
+
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public abstract void action();
+}
+
+class Dog extends animals {
+
+
+
+    @Override
+    public void action() {
+        System.out.println("狗"+name+"的动作！");
+    }
+
+
+}
+class Cat extends animals {
+
+    @Override
+    public void action() {
+        System.out.println("猫"+name+"的动作！");
+    }
+}
+
+```
+
+主要应用场景：模板方法设计模式
+
+为了解决代码重复问题，例：大部分代码相同，仅仅是中间部分代码不同，就可以使用这个设计模式来进行优化
+
+写法：定义一个抽象类，里面定义两个方法，一个抽象方法：让子类实现不同的方法。 一个模板方法，放相同的代码和抽象方法。
+
+且模板方法一般使用final修饰，防止子类重写
+
+```java
+
+public class TempAbstractDemo {
+    public static void main(String[] args) {
+        animalAction cat=new CatAction();
+        cat.setName("汤姆猫");
+        animalAction dog=new DogAction();
+        dog.setName("嗨皮狗");
+        cat.action();
+        dog.action();
+    }
+}
+
+abstract class animalAction {
+    String name;
+
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    final void action(){
+        System.out.println("我是"+name);
+        System.out.println("哥们饿了，要吃饭");
+        System.out.println(eat());
+        System.out.println("完蛋了，吃多了");
+    }
+    abstract String eat();
+}
+class CatAction extends animalAction{
+
+    @Override
+    String eat() {
+        return "吃猫粮，猛猛吃";
+    }
+}
+class DogAction extends animalAction{
+
+    @Override
+    String eat() {
+        return "吃狗粮，猛猛吃";
+    }
+}
+
+```
+
+## 接口
+
+java提供了一个关键字interface，使用这个关键字来定义一个特殊的结构：接口
+
+接口不能够创建对象，只能用来被类实现，而实现接口的类称之为实现类。
+
+一个类可以实现多个接口，实现类实现多个接口，必须重写所有接口的全部抽象方法，否则就必须定义为抽象类
+
+优点在于能够解决java只能单继承的劣势，且可以灵活的切换业务，更好的解耦合
+
+小示例： 需求，设计一个学生信息管理模块，学生数据有，姓名、性别、成绩，要求有两个功能，打印学生信息、打印学生成绩分
+
+对于这两个功能，需要两种实现方案，方案一：打印学生信息、打印学生成绩平均分。方案二：打印学生信息，且男女总数，打印平均分，去掉最高最低分
+
+Student类：
+
+```java
+
+public class Student  {
+    private String userName;
+    private char sex;
+    private double score;
+
+    public Student(String userName, char sex, double score) {
+        this.userName = userName;
+        this.sex = sex;
+        this.score = score;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public char getSex() {
+        return sex;
+    }
+
+    public void setSex(char sex) {
+        this.sex = sex;
+    }
+
+    public double getScore() {
+        return score;
+    }
+
+    public void setScore(double score) {
+        this.score = score;
+    }
+
+    public Student() {
+    }
+
+    @Override
+    public String toString() {
+        return
+                "名字为：" + userName +
+                " 性别为：" + sex +
+                " 分数为：" + score;
+    }
+}
+
+```
+
+Info接口
+
+```java
+public interface Info {
+    void printInfo(ArrayList<Student> students);
+    void printAvg(ArrayList<Student> students);
+
+}
+
+```
+
+impl1实现类1
+
+```java
+
+public class impl1 implements Info{
+    @Override
+    public void printInfo(ArrayList<Student> students) {
+
+
+        for (int i = 0; i < students.size(); i++) {
+            System.out.println(students.get(i));
+        }
+
+
+    }
+
+    @Override
+    public void printAvg(ArrayList<Student> students) {
+        double score=0;
+        for (int i = 0; i < students.size(); i++) {
+
+
+                score+=students.get(i).getScore();
+
+        }
+
+        System.out.println("总分为："+score+"  平均分为："+score/students.size());
+    }
+}
+
+```
+
+impl2实现类2
+
+```java
+public class impl2 implements Info{
+    //
+    @Override
+    public void printInfo(ArrayList<Student> students) {
+        int Bcount=0;
+        int Ycount=0;
+        Student max =students.get(0);
+        Student min =students.get(1);
+        for (int i = 2; i < students.size(); i++) {
+            if(students.get(i).getScore()< max.getScore()&&students.get(i).getScore()> min.getScore())
+            {
+                System.out.println(students.get(i));
+                if(students.get(i).getSex()=='男')
+                {
+                    Bcount++;
+                }else {
+                    Ycount++;
+                }
+
+            }else if(students.get(i).getScore()<min.getScore())
+            {
+
+                min=students.get(i);
+                if(min.getSex()=='男')
+                {
+                    Bcount++;
+                }else {
+                    Ycount++;
+                }
+            }else if(students.get(i).getScore()>max.getScore())
+            {
+                max=students.get(i);
+                if(max.getSex()=='男')
+                {
+                    Bcount++;
+                }else {
+                    Ycount++;
+                }
+            }else {
+                System.out.println(students.get(i));
+            }
+
+
+        }
+        System.out.println("男生人数为："+Bcount+"  女生人数为："+Ycount);
+
+    }
+
+    @Override
+    public void printAvg(ArrayList<Student> students) {
+        Student max =students.get(0);
+        Student min =students.get(1);
+
+        double score=0;
+        for (int i = 2; i < students.size(); i++) {
+            if(students.get(i).getScore()<min.getScore())
+            {
+
+                min=students.get(i);
+            }else if(students.get(i).getScore()>max.getScore())
+            {
+
+                max=students.get(i);
+            }
+            score+=students.get(i).getScore();
+        }
+
+        System.out.println("总分为："+score+"  平均分为："+score/(students.size()-2));
+    }
+}
+```
+
+主方法
+
+```java
+public class interfaceTest {
+    public static final ArrayList<Student> s = new ArrayList<Student>()
+    {
+        {
+        add(new Student("Jha", '男', 99));
+        add(new Student("cy", '男', 76));
+        add(new Student("qym", '女', 98));
+        add(new Student("azx", '男', 86));
+        }
+    };
+
+
+    private static Info impl2=new impl2();
+    public static void printInfo(){
+        impl2.printInfo(s);
+    }
+    public static void printAvg(){
+        impl2.printAvg(s);
+    }
+    public static void main(String[] args) {
+        printInfo();
+        printAvg();
+    }
+}
+```
