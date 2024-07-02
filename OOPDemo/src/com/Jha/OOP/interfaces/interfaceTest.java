@@ -13,12 +13,16 @@ public class interfaceTest {
         }
     };
 
-    private static Info impl1=new impl1();
-    public static void printInfo(){
-        impl1.printInfo(s);
-    }
 
+    private static Info impl2=new impl2();
+    public static void printInfo(){
+        impl2.printInfo(s);
+    }
+    public static void printAvg(){
+        impl2.printAvg(s);
+    }
     public static void main(String[] args) {
         printInfo();
+        printAvg();
     }
 }

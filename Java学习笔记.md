@@ -2447,3 +2447,216 @@ class DogAction extends animalAction{
 
 ```
 
+## 接口
+
+java提供了一个关键字interface，使用这个关键字来定义一个特殊的结构：接口
+
+接口不能够创建对象，只能用来被类实现，而实现接口的类称之为实现类。
+
+一个类可以实现多个接口，实现类实现多个接口，必须重写所有接口的全部抽象方法，否则就必须定义为抽象类
+
+优点在于能够解决java只能单继承的劣势，且可以灵活的切换业务，更好的解耦合
+
+小示例： 需求，设计一个学生信息管理模块，学生数据有，姓名、性别、成绩，要求有两个功能，打印学生信息、打印学生成绩分
+
+对于这两个功能，需要两种实现方案，方案一：打印学生信息、打印学生成绩平均分。方案二：打印学生信息，且男女总数，打印平均分，去掉最高最低分
+
+Student类：
+
+```java
+
+public class Student  {
+    private String userName;
+    private char sex;
+    private double score;
+
+    public Student(String userName, char sex, double score) {
+        this.userName = userName;
+        this.sex = sex;
+        this.score = score;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public char getSex() {
+        return sex;
+    }
+
+    public void setSex(char sex) {
+        this.sex = sex;
+    }
+
+    public double getScore() {
+        return score;
+    }
+
+    public void setScore(double score) {
+        this.score = score;
+    }
+
+    public Student() {
+    }
+
+    @Override
+    public String toString() {
+        return
+                "名字为：" + userName +
+                " 性别为：" + sex +
+                " 分数为：" + score;
+    }
+}
+
+```
+
+Info接口
+
+```java
+public interface Info {
+    void printInfo(ArrayList<Student> students);
+    void printAvg(ArrayList<Student> students);
+
+}
+
+```
+
+impl1实现类1
+
+```java
+
+public class impl1 implements Info{
+    @Override
+    public void printInfo(ArrayList<Student> students) {
+
+
+        for (int i = 0; i < students.size(); i++) {
+            System.out.println(students.get(i));
+        }
+
+
+    }
+
+    @Override
+    public void printAvg(ArrayList<Student> students) {
+        double score=0;
+        for (int i = 0; i < students.size(); i++) {
+
+
+                score+=students.get(i).getScore();
+
+        }
+
+        System.out.println("总分为："+score+"  平均分为："+score/students.size());
+    }
+}
+
+```
+
+impl2实现类2
+
+```java
+public class impl2 implements Info{
+    //
+    @Override
+    public void printInfo(ArrayList<Student> students) {
+        int Bcount=0;
+        int Ycount=0;
+        Student max =students.get(0);
+        Student min =students.get(1);
+        for (int i = 2; i < students.size(); i++) {
+            if(students.get(i).getScore()< max.getScore()&&students.get(i).getScore()> min.getScore())
+            {
+                System.out.println(students.get(i));
+                if(students.get(i).getSex()=='男')
+                {
+                    Bcount++;
+                }else {
+                    Ycount++;
+                }
+
+            }else if(students.get(i).getScore()<min.getScore())
+            {
+
+                min=students.get(i);
+                if(min.getSex()=='男')
+                {
+                    Bcount++;
+                }else {
+                    Ycount++;
+                }
+            }else if(students.get(i).getScore()>max.getScore())
+            {
+                max=students.get(i);
+                if(max.getSex()=='男')
+                {
+                    Bcount++;
+                }else {
+                    Ycount++;
+                }
+            }else {
+                System.out.println(students.get(i));
+            }
+
+
+        }
+        System.out.println("男生人数为："+Bcount+"  女生人数为："+Ycount);
+
+    }
+
+    @Override
+    public void printAvg(ArrayList<Student> students) {
+        Student max =students.get(0);
+        Student min =students.get(1);
+
+        double score=0;
+        for (int i = 2; i < students.size(); i++) {
+            if(students.get(i).getScore()<min.getScore())
+            {
+
+                min=students.get(i);
+            }else if(students.get(i).getScore()>max.getScore())
+            {
+
+                max=students.get(i);
+            }
+            score+=students.get(i).getScore();
+        }
+
+        System.out.println("总分为："+score+"  平均分为："+score/(students.size()-2));
+    }
+}
+```
+
+主方法
+
+```java
+public class interfaceTest {
+    public static final ArrayList<Student> s = new ArrayList<Student>()
+    {
+        {
+        add(new Student("Jha", '男', 99));
+        add(new Student("cy", '男', 76));
+        add(new Student("qym", '女', 98));
+        add(new Student("azx", '男', 86));
+        }
+    };
+
+
+    private static Info impl2=new impl2();
+    public static void printInfo(){
+        impl2.printInfo(s);
+    }
+    public static void printAvg(){
+        impl2.printAvg(s);
+    }
+    public static void main(String[] args) {
+        printInfo();
+        printAvg();
+    }
+}
+```
