@@ -2660,3 +2660,281 @@ public class interfaceTest {
     }
 }
 ```
+
+在JDK8开始，为了增强接口的能力，接口新增了三种形式的方法：默认方法，私有方法，类方法（静态方法）
+
+新建接口 MethodInterface
+
+```JAVA
+
+public interface MethodInterface {
+    public default void defaultMethod(){
+        System.out.println("默认方法");
+        privateMethod();
+    }
+    private void privateMethod(){
+        System.out.println("私有方法，通过默认方法进行调用");
+    }
+    public static void staticMethod(){
+        System.out.println("类方法（静态方法）");
+    }
+    public abstract void fun1();
+}
+
+```
+
+其实现类MethodImp及主方法MethodDemo
+
+```java
+public class MethodDemo {
+    public static void main(String[] args) {
+        MethodImp methodImp=new MethodImp();
+        methodImp.defaultMethod();
+        methodImp.fun1();
+        MethodInterface.staticMethod();
+    }
+}
+class MethodImp implements MethodInterface{
+    @Override
+    public void fun1() {
+        System.out.println("fun1调用");
+    }
+}
+```
+
+可以通过默认方法来进行方法的扩展，而不需要每个实现类都去进行重写，如：这个接口被一百个实现类实现，那么想要加一个fun2，用来输出一些信息，没有默认方法之前，就需要这一百个实现类都重写，使用默认方法后，只需要在接口内编写一次即可。
+
+## 内部类
+
+是类的五大成分之一（成员方法、方法、构造器、内部类、代码块），如果一个类定义在另一个类的内部，这个类就是内部类。通常是因为当一个类的内部，包含了一个完整的事物，且这个事物没有必要单独设计时，就可以把这个事物设计成内部类。
+
+内部类分为四种：成员内部类、静态内部类、局部内部类、匿名内部类（重点）
+
+### 成员内部类
+
+就是类中的一个普通成员，类似之前普通的成员方法和成员变量。在jdk16之前，成员内部类中不能定义静态成员
+
+创建对象的格式：
+
+外部类名.内部类名 对象名 =new 外部类（）.new 内部类（）；
+
+成员内部类中访问其他成员：
+
+可以直接访问外部类的成员，要拿到外部类的对象格式为：外部类名.this
+
+```java
+
+
+
+public class InnerDemo {
+    public static void main(String[] args) {
+        Outer.Inner inner=new  Outer().new Inner();
+        inner.show();
+    }
+
+}
+class Outer {
+    public String msg="外部";
+    public class Inner {
+        public String msg = "内部";
+
+        public void show() {
+            String msg = "方法内部";
+            System.out.println(msg);
+            System.out.println(this.msg);
+            System.out.println(Outer.this.msg);
+        }
+    }
+}
+
+```
+
+### 静态内部类
+
+有static修饰的内部类，属于外部类自己持有
+
+创建对象的格式：
+
+外部类名.内部类名 对象名=new 外部类.内部类（）；
+
+可以访问外部类的静态成员，不能访问外部类的实例成员
+
+```java
+
+public class StaticInnerDemo {
+    public static void main(String[] args) {
+        staticOuter.staticInner s=new staticOuter.staticInner();
+        s.show();
+        System.out.println("============");
+        s.staticShow();
+    }
+}
+class staticOuter{
+    public String msg1="外部实例";
+    static String msg2="外部静态";
+
+    static class staticInner{
+        String msg3="内部实例";
+        static String msg4="内部静态";
+        //只能调用静态，内部和外部
+        public static void staticShow(){
+            System.out.println(msg4);
+            System.out.println(msg2);
+        }
+        //内部可以实例和静态都调，但是不能调外部实例
+        public void show(){
+            System.out.println(msg2);
+            System.out.println(msg3);
+            System.out.println(msg4);
+        }
+    }
+}
+
+```
+
+
+
+### 局部内部类
+
+定义在方法、代码块、构造器等执行体中，没有用处，知道有就行
+
+### 匿名内部类
+
+是一种特殊的局部内部类，所谓匿名，指的是程序员不需要为这个类声明名字
+
+匿名内部类本质上就是一个子类，并会创建一个子类对象，一般用于更方便的创建一个子类对象
+
+匿名内部类一般是作为参数进行传递给方法
+
+```java
+
+public class anonInner {
+    public static void main(String[] args) {
+        go(new action() {
+            @Override
+            public void swim() {
+                System.out.println("游泳！！");
+            }
+        });
+       // go(()-> System.out.println("起飞"));//这是lambda表达式用来简化这个的 和上面一样的作用
+    }
+    public static void go(action action){
+        action.swim();
+    }
+}
+interface action{
+    void swim();
+}
+
+```
+
+## 枚举
+
+枚举是一种特殊的类，其格式为：
+
+```java
+修饰符 enum 枚举类名{
+    名称1,名称2,名称3,···;
+    其他成员
+}
+```
+
+枚举类的第一行，只能写一些合法的标识符（名称），多个名称用逗号隔开，这些名称，本质是常量，每个常量都会记住枚举类的一个对象。
+
+枚举类的构造器是私有的（默认的，不可修改）因此 ，枚举类对外不能创建对象
+
+枚举类是最终类，不可被继承
+
+枚举类中，从第二行开始，可以定义类的其他各种成员，枚举一般作为参数使用，替换常量
+
+```java
+
+public class enumDemos {
+    public static void main(String[] args) {
+        select(sex.BOY);
+    }
+    static void select(sex s){
+        switch (s){
+            case BOY:
+                System.out.println("男生");
+                break;
+            case GIRL:
+                System.out.println("女生");
+                break;
+            default:
+                System.out.println("null");
+        }
+    }
+}
+enum sex{
+    BOY,GIRL;
+}
+
+```
+
+抽象枚举
+
+指枚举类中存在抽象方法，则该枚举为抽象枚举，第一行则需要进行初始化
+
+```java
+
+public class EnumDemo {
+    public static void main(String[] args) {
+        Animal a=Animal.Cat;
+        Animal b=Animal.Dog;
+        a.fun();
+        a.run();
+
+        b.run();
+    }
+}
+ enum Animal{
+    Cat("喵喵"){
+        @Override
+        public void run() {
+            System.out.println(getName()+" 被唤醒了！");
+        }
+    },Dog("汪汪") {
+         @Override
+         public void run() {
+             System.out.println(getName()+" 被唤醒了！");
+         }
+     };
+    private String Name;
+    public void fun(){
+        System.out.println(getName()+ "调用枚举中方法，开始动物操作");
+    }
+    public  abstract void run();
+     Animal() {
+     }
+
+     Animal(String name) {
+         Name = name;
+     }
+
+     public String getName() {
+         return Name;
+     }
+
+     public void setName(String name) {
+         Name = name;
+     }
+ }
+```
+
+## 泛型
+
+[Java 中的泛型（两万字超全详解）_java 泛型-CSDN博客](https://blog.csdn.net/weixin_45395059/article/details/126006369)
+
+详细可以看这个博客，比较详细
+
+定义类、接口、方法时，同时声明了一个或者多个类型变量（如：<E>），成为泛型类，泛型接口，泛型方法，他们统称泛型
+
+作用：泛型提供了在编译阶段约束所能操作的数据类型，并自动检查的能力。可以避免强制类型转换造成的转换异常。
+
+泛型的本质是把具体的数据类型作为参数传给类型变量
+
+### 泛型类
+
+修饰符 class 类名<类型变量，类型变量，···>{  }
+

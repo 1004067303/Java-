@@ -8,7 +8,7 @@ public class TempDemo {
         a.add(new Cat("1"));
         a.add(new Cat("2"));
         a.add(new Cat("3"));
-        getAnimal2(a);
+        getAnimal(a);
     }
     public static<T extends Animal> void getAnimal(ArrayList<T> t)
     {
