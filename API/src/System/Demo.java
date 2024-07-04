@@ -1,7 +1,5 @@
 package System;
 
-import java.util.Scanner;
-
 public class Demo {
     public static void main(String[] args) throws InterruptedException {
         long begMs = System.currentTimeMillis();
@@ -11,9 +9,8 @@ public class Demo {
         }
         long endMs = System.currentTimeMillis();
         System.out.println();
-        System.out.println("花费了"+(endMs - begMs) / 1000+" 秒");
+        System.out.println("花费了"+(endMs - begMs) / 1000.0+" 秒");
         System.out.println("花费了"+(endMs - begMs ) +" 毫秒");
-
-
+        System.exit(-1);
     }
 }
