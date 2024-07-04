@@ -187,7 +187,7 @@ System.out.println(i);
 
 ## 流程控制
 
-看这里之前可以先看API下的Java自带API中的键盘输入类
+看这里之前可以先看Java自带API下的键盘输入类
 
 ### if流程控制
 
@@ -590,6 +590,389 @@ public class Demo {
     }
 }
 ```
+
+## Java自带Api
+
+### 键盘输入Scanner类
+
+通过Scanner类中的next()方法来进行键盘的数据读入，示例如下：
+
+```java
+Scanner sc=new Scanner(System.in);
+String next = sc.next();
+System.out.println(next);
+```
+
+运行之后，回让你输入信息，输入完信息后，点击回车，就会将刚刚输入的信息输出出来
+
+这里因为next()方法 获取到的是字符串，所以使用的是字符串来进行接收，也可以使用nextInt()、nextDouble()等这些方法，他们接受的是指定类型的数据。
+
+当然，一般建议直接接受字符串，后续按照需要做强转即可
+
+### 随机数生成类Random
+
+Java中可以使用Random生成随机数
+
+一般使用为
+
+```
+Random r=new Random();
+r.nextInt(10)//这就是生成[0,10)之间的数，且是整数，同理改为nextDouble即为生成小数
+```
+
+Random r=new Random();
+
+如果 Random()中不使用参数，那么就默认将使用默认的种子来生成随机数，默认种子数一般为当前系统时间的毫秒数
+
+想要生成指定范围内的随机数，如[50,100)
+
+```
+Random r=new Random();
+r.nextInt(50)+50
+r.nextInt(14)+3//[3-16] //因为是整数，所以可以这样取
+r.nextDouble(14)+3//[3-17) //浮点数就不一样了
+
+//int randNumber = rand.nextInt(MAX - MIN + 1) + MIN; //这就是随机数的生成公式
+```
+
+
+
+随机数测试：猜数案例
+
+随机生成一个1-100的数，进行猜数，最多猜10次，每次猜玩进行提示，成功退出，达到10次退出，并公布正确答案
+
+示例代码
+
+```Java
+import java.util.Random;
+import java.util.Scanner;
+
+public class RandomTest {
+    public static void main(String[] args) {
+        Random random=new Random();
+        double v = random.nextInt(100)%(100-1+1) + 1;
+        //double v2 = random.nextInt(100) + 1;
+        boolean flag=true;
+        Scanner sc=new Scanner(System.in);
+        int count=1;
+        while (flag)
+        {
+            System.out.print("请猜数字1-100 :");
+            int i = sc.nextInt();
+            System.out.println("你猜的数字是："+i);
+            count++;
+            if(i==v)
+            {
+                System.out.println("你猜对了,总共猜了"+count+"次");
+                break;
+            }else if(i>v)
+            {
+                System.out.println("你猜大了");
+            }else
+            {
+                System.out.println("你猜小了");
+            }
+            if(count>=10)
+            {
+                System.out.println("猜了"+count+"次，未猜对，正确答案为："+v+"游戏结算！");
+                break;
+            }
+        }
+
+    }
+}
+```
+
+## String
+
+String对象是不可变字符串，通过""双引号来进行声明的，会放到堆内存中的字符串常量池中，且相同内容的字符串只会存储一份，
+
+通过new生成的字符串，则直接进入堆内存中，及时相同内容，他们都会拥有不同的地址值。
+
+连接是将两个字符组装起来，在堆里面生成一个新的字符串，然后再将这个地址返回给它
+
+### String创建对象封装字符串数据的方式
+
+方式一：Java中的所有字符串文字都为此类的对象，如随意的一个字符串"asdasd"
+
+方式二：调用String类的构造器初始化字符串对象
+
+构造器：
+
+public String()  创建一个空白字符串对象，不含有任何内容
+
+public String(String str)   根据传入的字符串内容，创建字符串对象
+
+public String(char[] ch)   根据传入的字符数组的内容，创建字符串对象
+
+public String(byte[] byte) 根据传入的字节数组的内容，创建字符串对象
+
+### String的常用方法
+
+public int length() 获取字符串长度
+
+public char charAt(int index)  获取某个索引的字符返回，索引从0开始
+
+public char[] toCharArray()  将当前字符串转换成字符数组并返回
+
+public boolean equals(Object object)  判断当前字符和另一个字符内容是否相同
+
+public boolean equalsIgnoreCase(String str) 忽略大小写进行判断
+
+public String substring(int beginIndex,int endIndex)  按照索引进行截取，包前不包后
+
+public String substring(int index)  按照索引进行截取，到末尾
+
+public String replace(char old,char new)    使用新值替换旧值
+
+public boolean contains(char s) 判断是否包含某个字符
+
+public boolean startswith(string s)   判断是否以某个字符串开头
+
+public String[] split(String r)   把字符串按照某个字符串进行分隔，并返回字符串数组
+
+### String小测试
+
+需求：开发登录页面，提示用户输入用户名和密码，对登录进行验证，最多输错三次，密码长度不能超过8位
+
+```Java
+public class Demo {
+    public static void main(String[] args) {
+            UserOperator u=new UserOperator();
+            u.start();
+    }
+    public static class User{
+        private String userName;
+        private String passWord;
+
+        public User() {
+        }
+
+        public User(String userName, String passWord) {
+            this.userName = userName;
+            this.passWord = passWord;
+        }
+
+        public String getUserName() {
+            return userName;
+        }
+
+        public void setUserName(String userName) {
+            this.userName = userName;
+        }
+
+        public String getPassWord() {
+            return passWord;
+        }
+
+        public void setPassWord(String passWord) {
+            this.passWord = passWord;
+        }
+    }
+
+    public static class UserOperator{
+        private User user;
+
+        public UserOperator() {
+        }
+
+        public UserOperator(User user) {
+            this.user = user;
+        }
+
+        public User getUser() {
+            return user;
+        }
+
+        public void setUser(User user) {
+            this.user = user;
+        }
+
+        public boolean CheckLogin(){
+            if(user.getUserName().equals("admin")&&user.getPassWord().equals("admin")){
+                return true;
+            }
+            return false;
+        }
+
+        public  void start(){
+            int count=1;
+            Scanner s=new Scanner(System.in);
+            String userName;
+            String passWord;
+            User user=new User();
+
+            while (true){
+                System.out.print("请输入账户：");
+                userName=s.next();
+                System.out.print("请输入密码：");
+                passWord=s.next();
+                user.setUserName(userName);
+                user.setPassWord(passWord);
+                setUser(user);
+                if(CheckLogin()){
+                    System.out.println("登录成功");
+                    break;
+                }else{
+                    System.out.println("账号或密码错误，请重新登陆，您当前登陆失败次数："+count+",达到三次自动退出系统");
+                }
+                if(count<3) {
+                    count++;
+                }else {
+                    break;
+                }
+            }
+        }
+    }
+}
+
+```
+
+## ArrayList
+
+ArrayList<T> 作为做常用的一种集合，必须会使用
+
+首先，我们先了解什么是集合：集合是一种容器，用来装数据的，类似与数组，集合相对于数组，大小可变，先了解ArrayList
+
+构造器 ArrayList()  创建一个空的集合
+
+### 常用方法：
+
+public boolean add(E e) 将指定的元素添加到此集合的末尾
+
+public void add(int index,E e)  将指定元素插入指定的位置，通过索引确定，索引从0开始
+
+public E get(int index)  返回索引处的元素
+
+public int size()  返回集合中元素的个数
+
+public E remove(int  index) 移出指定位置的元素，返回被删除的元素
+
+public boolean remove(Object o)  删除指定的元素，删除之后，后面的索引会自动减一
+
+public E set(int  index ,E e)  修改索引处的元素，返回被修改的元素
+
+附加： 想要删除包含某个字符的所有元素，配合String的contains方法使用，配合循环
+
+### ArrayList小测试
+
+需求：货物展示系统，同时需要制作货物的上架，下架
+
+```Java
+public class Demo {
+    public static void main(String[] args) {
+        goodsOperator g=new goodsOperator();
+        g.start();
+    }
+    public static class Goods{
+       private String  name;
+       private BigDecimal price;
+       private String info;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public BigDecimal getPrice() {
+            return price;
+        }
+
+        public void setPrice(BigDecimal price) {
+            this.price = price;
+        }
+
+        public String getInfo() {
+            return info;
+        }
+
+        public void setInfo(String info) {
+            this.info = info;
+        }
+    }
+
+    public static class goodsOperator{
+        private List<Goods> goods=new ArrayList<Goods>();
+        public void addGoods(){
+            Goods g=new Goods();
+            Scanner sc=new Scanner(System.in);
+            System.out.print("请输入你想要添加的货物名：");
+            String goodsName = sc.next();
+            System.out.print("请输入你想要添加的货物价格：");
+            BigDecimal price=sc.nextBigDecimal();
+            System.out.print("请输入你想要添加的货物信息备注：");
+            String info=sc.next();
+            g.setName(goodsName);
+            g.setPrice(price);
+            g.setInfo(info);
+            goods.add(g);
+        }
+        public void showGood(){
+            if(goods.isEmpty()){
+                System.out.println("当前还无货物！！！  请添加货物");
+            }
+            for (int i = 0; i < goods.size(); i++) {
+                System.out.println("货物名："+goods.get(i).getName()+",价格："+goods.get(i).getPrice()+",备注信息："+goods.get(i).getInfo());
+            }
+        }
+        public boolean removeGoods(){
+            boolean flag=false;
+            if(goods.isEmpty()){
+                System.out.println("当前还无货物！！！  无法删除");
+                return false;
+            }
+            Scanner sc=new Scanner(System.in);
+            System.out.print("请输入要删除的货物名：");
+            String name = sc.next();
+            for (int i = 0; i < goods.size(); i++) {
+                if(goods.get(i).getName().equals(name))
+                {
+                    goods.remove(i);
+                    i--;
+                    flag=true;
+
+                }
+                else{
+                    System.out.println("货物名称有误！！删除"+name+"失败！！！");
+                    flag=false;
+
+                }
+            }
+            return flag;
+        }
+
+        public void start(){
+            Scanner sc=new Scanner(System.in);
+            while (true){
+                System.out.println("==============欢迎来到货物管理系统==============");
+                System.out.println("请选择你的操作：1、增加货物；2、删除货物，3、退出系统");
+                showGood();
+                int flag = sc.nextInt();
+                switch (flag)
+                {
+                    case 1:
+                        addGoods();
+                        break;
+                    case 2:
+                        removeGoods();
+                        break;
+                    case 3:
+                        System.out.println("退出系统！！！");
+                        return;
+                    default:
+                        System.out.println("命令选择有误，请重新选择！！！！");
+                        break;
+                }
+            }
+        }
+    }
+}
+```
+
+
 
 # 面向对象基础
 
@@ -2737,385 +3120,451 @@ class GenericMethod {
 
 # API
 
-## Java自带Api
+在java中有很多已经预先写好的api提供给用户使用，可以自己去官网下对应版本的API文档
 
-### 键盘输入Scanner类
+## Object
 
-通过Scanner类中的next()方法来进行键盘的数据读入，示例如下：
+Object类是java所有类的祖宗类，java中的类都直接或者间接继承Object类，因此，java中的类都可以直接使用Object类中提供的一些方法。常见方法有：toString() 返回对象的字符串形式、equals(Object o) 判断两个对象是否相等（比较地址）一般需要重写、clone() 对象克隆
+
+克隆分为浅克隆和深克隆，
+
+一般如果不对clone方法进行任何修改，那么就是浅克隆，拷贝出的对象，和原对象数据一模一样，但是对于其中的引用类型，拷贝的只是地址  
+
+深拷贝则是对引用类型的变量进行重新开辟内存空间保存，保证了二者的互不影响，实现深拷贝的方法为在clone方法中对嵌套clone，即二者都需实现Cloneable 接口，然后在需要深拷贝的类中进行重写clone方法，让引用类被克隆一次。
+
+Cloneable 接口是一个标记接口，表明这个类支持克隆，这是一种规则，Cloneable 接口里面什么都没有
 
 ```java
-Scanner sc=new Scanner(System.in);
-String next = sc.next();
-System.out.println(next);
+
+public class CloneDemo {
+    public static void main(String[] args) throws CloneNotSupportedException {
+        System.out.println("类中没有引用类型时直接深拷贝");
+        A a=new A();
+        a.name="test";
+        a.age=23;
+        A clone = (A) a.clone();
+        a.setAge(2);
+        a.setName("wuhu");
+        System.out.println(a);
+        System.out.println(clone);
+        System.out.println("===========");
+        System.out.println("类中有引用类型时直接深拷贝");
+        B b=new B();
+        b.setA(a);
+        b.setDesc("msg");
+        B cloneb =(B) b.clone();
+        System.out.println(b.a);
+        System.out.println(cloneb.a);
+        System.out.println(b);
+        System.out.println(cloneb);
+
+    }
+}
+class A implements Cloneable{
+    String name;
+    int age;
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+}
+class B implements Cloneable{
+    A a=new A();
+    String Desc;
+
+    public A getA() {
+        return a;
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        B b=(B) super.clone();
+        b.a=((A) b.a.clone());
+        return b;
+        //return super.clone();//输出地址值相同
+    }
+
+    public void setA(A a) {
+        this.a = a;
+    }
+
+    public String getDesc() {
+        return Desc;
+    }
+
+    public void setDesc(String desc) {
+        Desc = desc;
+    }
+
+    @Override
+    public String toString() {
+        return "B{" +
+                "a=" + a +
+                ", Desc='" + Desc + '\'' +
+                '}';
+    }
+}
+
 ```
 
-运行之后，回让你输入信息，输入完信息后，点击回车，就会将刚刚输入的信息输出出来
+## Objects
 
-这里因为next()方法 获取到的是字符串，所以使用的是字符串来进行接收，也可以使用nextInt()、nextDouble()等这些方法，他们接受的是指定类型的数据。
+Objects是一个工具类，提供了很多操作对象的静态方法以供用户使用
 
-当然，一般建议直接接受字符串，后续按照需要做强转即可
+常见的方法有：
 
-### 随机数生成类Random
+equals（Object a, Object b） 先做空判断，再比较二者是否相等
 
-Java中可以使用Random生成随机数
+isNull（Object o） 判断对象是否为null，是则返回true
 
-一般使用为
+nonNull（Object o） 判断对象是否不为null，不为null则返回true
 
-```
-Random r=new Random();
-r.nextInt(10)//这就是生成[0,10)之间的数，且是整数，同理改为nextDouble即为生成小数
-```
+可以看到Object类中也有equals方法，这里为什么也有equals方法呢且推荐使用的是Objects中的equals方法
 
-Random r=new Random();
+原因为：Object中的equals方法 在引用这个方法的对象为空的情况下会抛出异常，而Objects中的则没有这个问题
 
-如果 Random()中不使用参数，那么就默认将使用默认的种子来生成随机数，默认种子数一般为当前系统时间的毫秒数
+```java
 
-想要生成指定范围内的随机数，如[50,100)
-
-```
-Random r=new Random();
-r.nextInt(50)+50
-r.nextInt(14)+3//[3-16] //因为是整数，所以可以这样取
-r.nextDouble(14)+3//[3-17) //浮点数就不一样了
-
-//int randNumber = rand.nextInt(MAX - MIN + 1) + MIN; //这就是随机数的生成公式
-```
-
-
-
-随机数测试：猜数案例
-
-随机生成一个1-100的数，进行猜数，最多猜10次，每次猜玩进行提示，成功退出，达到10次退出，并公布正确答案
-
-示例代码
-
-```Java
-
-import java.util.Random;
-import java.util.Scanner;
-
-public class RandomTest {
+public class Test {
     public static void main(String[] args) {
-        Random random=new Random();
-        double v = random.nextInt(100)%(100-1+1) + 1;
-        //double v2 = random.nextInt(100) + 1;
-        boolean flag=true;
+        String msg1=null;
+        String msg2="TEST";
+        // msg1为空会空指针异常
+        //System.out.println(msg1.equals(msg2));
+        System.out.println(msg2 == msg1);
+        System.out.println(Objects.equals(msg1, msg2));
+    }
+}
+```
+
+## 包装类
+
+包装类就是把基本数据类型的数据包装成对象，如下
+
+| 基本数据类型 | 对应的包装类（引用数据类型） |
+| ------------ | ---------------------------- |
+| byte         | Byte                         |
+| short        | Short                        |
+| int          | Integer                      |
+| long         | Long                         |
+| char         | Character                    |
+| float        | Float                        |
+| double       | Double                       |
+| boolean      | Boolean                      |
+
+常见操作：
+
+将基本数据类型转换为字符串类型数据：封装类.toString(基本类型参数名)方法、基本类型参数.toString()
+
+将字符串类型数据转换为数值本身对应的数据类型：封装类.parseInt(String s)、封装类.valueOf(String s)
+
+## StringBuilder
+
+StringBuilder代表可变字符串，相当于是一个容器，里面装的字符串是可变的，就是用来操作字符串的
+
+好处：StringBuilder比String更适合做字符串的修改操作，效率会更高，代码也更加简洁。
+
+构造器：StringBuilder（）创建空的可变字符串对象，StringBuilder（String str）创建指定内容的可变字符串对象
+
+常用方法：
+
+append（任意类型数据）：将数据添加并返回StringBuilder对象自身
+
+reverse（）：将字符串反转
+
+length（）：获取字符串长度
+
+toString（）：将StringBuilder对象转换成String字符串对象
+
+对于字符串操作：如拼接、修改等操作比较频繁，那么就使用StringBuilder，因为String每次操作都是放弃原来的字符串，创建新的
+
+如操作字符串较少，或者不需要操作，以及定义字符串常量，使用String
+
+## StringJoiner
+
+JDK8开始才有的，和StringBuilder一样，都是用来操作字符串的，也可以看成是一个容器，里面的内容是可变的。
+
+主要用于拼接字符串时使用，构造形式：
+
+StringJoiner（间隔符号） 创建一个StringJoiner对象，指定拼接时间隔符号
+
+StringJoiner（间隔符号,开始符号,结束符号）创建一个StringJoiner对象，指定拼接时开始符号，间隔符号，结束符号。
+
+常用方法：
+
+add（添加的内容） 添加数据并返回本身
+
+length（）：返回长度
+
+toString（）：将StringJoiner对象转换为String对象
+
+实例：设计一个方法，用来返回任意整形数组的内容，形式如：[1,2,3]
+
+```java
+
+public class Demo {
+    public static void main(String[] args) {
+
+        System.out.print("输入整型数组的长度：");
         Scanner sc=new Scanner(System.in);
-        int count=1;
-        while (flag)
-        {
-            System.out.print("请猜数字1-100 :");
-            int i = sc.nextInt();
-            System.out.println("你猜的数字是："+i);
-            count++;
-            if(i==v)
-            {
-                System.out.println("你猜对了,总共猜了"+count+"次");
-                break;
-            }else if(i>v)
-            {
-                System.out.println("你猜大了");
-            }else
-            {
-                System.out.println("你猜小了");
-            }
-            if(count>=10)
-            {
-                System.out.println("猜了"+count+"次，未猜对，正确答案为："+v+"游戏结算！");
-                break;
+        int count = sc.nextInt();
+        ArrayList<Integer> arr=new ArrayList<>();
+        for (int i = 1; i <= count; i++) {
+            System.out.print("输入第"+i+"个数据：");
+            arr.add(sc.nextInt());
+        }
+        System.out.println(getString(arr));
+        System.out.println(getStrings(arr));
+
+
+
+    }
+    public static String getString(ArrayList<Integer> arr){
+        StringBuilder sb=new StringBuilder();
+        sb.append("[");
+        for (int i = 0; i < arr.size(); i++) {
+            if(i!=arr.size()-1) {
+                sb.append(arr.get(i) + ",");
+            }else {
+                sb.append(arr.get(i));
             }
         }
+        sb.append("]");
+        return sb.toString();
+    }
 
+    public static String getStrings(ArrayList<Integer> arr)
+    {
+        StringJoiner sj=new StringJoiner(",","[","]");
+        for (Integer integer : arr) {
+            sj.add(integer.toString());
+        }
+        return sj.toString();
     }
 }
 ```
 
-## String
 
-String对象是不可变字符串，通过""双引号来进行声明的，会放到堆内存中的字符串常量池中，且相同内容的字符串只会存储一份，
 
-通过new生成的字符串，则直接进入堆内存中，及时相同内容，他们都会拥有不同的地址值。
+## StringBuffer
 
-连接是将两个字符组装起来，在堆里面生成一个新的字符串，然后再将这个地址返回给它
+StringBuffer是线程安全的，如果使用场景为这个字符需要被多个用于来更改，那么就使用它
 
-### String创建对象封装字符串数据的方式
+## Math
 
-方式一：Java中的所有字符串文字都为此类的对象，如随意的一个字符串"asdasd"
+代表数学，是一个工具类，里面提供的都是对数据进行操作的一些静态方法，如加减乘除，取整等
 
-方式二：调用String类的构造器初始化字符串对象
+常见的一些方法：
 
-构造器：
+abs（int a）：取绝对值
 
-public String()  创建一个空白字符串对象，不含有任何内容
+ceil（double a）：向上取整
 
-public String(String str)   根据传入的字符串内容，创建字符串对象
+floor（double a）：向下取整
 
-public String(char[] ch)   根据传入的字符数组的内容，创建字符串对象
+round（double a）：四舍五入
 
-public String(byte[] byte) 根据传入的字节数组的内容，创建字符串对象
+max（int a,int b）：获取最大值
 
-### String的常用方法
+pow（double a,double b）：获取a的b次幂
 
-public int length() 获取字符串长度
+random（）：获取[0.0,1.0)的随机数
 
-public char charAt(int index)  获取某个索引的字符返回，索引从0开始
+```java
 
-public char[] toCharArray()  将当前字符串转换成字符数组并返回
-
-public boolean equals(Object object)  判断当前字符和另一个字符内容是否相同
-
-public boolean equalsIgnoreCase(String str) 忽略大小写进行判断
-
-public String substring(int beginIndex,int endIndex)  按照索引进行截取，包前不包后
-
-public String substring(int index)  按照索引进行截取，到末尾
-
-public String replace(char old,char new)    使用新值替换旧值
-
-public boolean contains(char s) 判断是否包含某个字符
-
-public boolean startswith(string s)   判断是否以某个字符串开头
-
-public String[] split(String r)   把字符串按照某个字符串进行分隔，并返回字符串数组
-
-### String小测试
-
-需求：开发登录页面，提示用户输入用户名和密码，对登录进行验证，最多输错三次，密码长度不能超过8位
-
-```Java
 public class Demo {
+    public static final Double A=3.9;
+    public static final Double B=4.0;
+    public static final Double C=4.1;
+    public static final Double D=4.4;
+    public static final Double E=4.5;
+    public static final Double F=4.6;
     public static void main(String[] args) {
-            UserOperator u=new UserOperator();
-            u.start();
-    }
-    public static class User{
-        private String userName;
-        private String passWord;
 
-        public User() {
-        }
-
-        public User(String userName, String passWord) {
-            this.userName = userName;
-            this.passWord = passWord;
-        }
-
-        public String getUserName() {
-            return userName;
-        }
-
-        public void setUserName(String userName) {
-            this.userName = userName;
-        }
-
-        public String getPassWord() {
-            return passWord;
-        }
-
-        public void setPassWord(String passWord) {
-            this.passWord = passWord;
-        }
-    }
-
-    public static class UserOperator{
-        private User user;
-
-        public UserOperator() {
-        }
-
-        public UserOperator(User user) {
-            this.user = user;
-        }
-
-        public User getUser() {
-            return user;
-        }
-
-        public void setUser(User user) {
-            this.user = user;
-        }
-
-        public boolean CheckLogin(){
-            if(user.getUserName().equals("admin")&&user.getPassWord().equals("admin")){
-                return true;
-            }
-            return false;
-        }
-
-        public  void start(){
-            int count=1;
-            Scanner s=new Scanner(System.in);
-            String userName;
-            String passWord;
-            User user=new User();
-
-            while (true){
-                System.out.print("请输入账户：");
-                userName=s.next();
-                System.out.print("请输入密码：");
-                passWord=s.next();
-                user.setUserName(userName);
-                user.setPassWord(passWord);
-                setUser(user);
-                if(CheckLogin()){
-                    System.out.println("登录成功");
-                    break;
-                }else{
-                    System.out.println("账号或密码错误，请重新登陆，您当前登陆失败次数："+count+",达到三次自动退出系统");
-                }
-                if(count<3) {
-                    count++;
-                }else {
-                    break;
-                }
-            }
-        }
+        System.out.println("取绝对值："+Math.abs(-1));
+        System.out.println("================================");
+        System.out.println(A+"向上取整："+Math.ceil(A));
+        System.out.println(B+"向上取整："+Math.ceil(B));
+        System.out.println(C+"向上取整："+Math.ceil(C));
+        System.out.println("================================");
+        System.out.println(A+"向下取整："+Math.floor(A));
+        System.out.println(B+"向下取整："+Math.floor(B));
+        System.out.println(C+"向下取整："+Math.floor(C));
+        System.out.println(D+"向下取整："+Math.floor(D));
+        System.out.println("================================");
+        System.out.println(A+"四舍五入："+Math.round(A));
+        System.out.println(B+"四舍五入："+Math.round(B));
+        System.out.println(C+"四舍五入："+Math.round(C));
+        System.out.println(D+"四舍五入："+Math.round(D));
+        System.out.println(E+"四舍五入："+Math.round(E));
+        System.out.println(F+"四舍五入："+Math.round(F));
+        System.out.println("================================");
+        System.out.println("取次方："+Math.pow(2,3));
+        System.out.println("================================");
+        System.out.println("取随机数[0.0-1.0)："+Math.random());
     }
 }
 
 ```
 
-## ArrayList
+## System
 
-ArrayList<T> 作为做常用的一种集合，必须会使用
+System代表程序所在的系统，也是一个工具类。
 
-首先，我们先了解什么是集合：集合是一种容器，用来装数据的，类似与数组，集合相对于数组，大小可变，先了解ArrayList
+常用方法：
 
-构造器 ArrayList()  创建一个空的集合
+exit(int status) ：终止正在运行的虚拟机
 
-### 常用方法：
+currentTimeMillis()：返回当前系统的时间毫秒值。一般用于记录程序运行时间
 
-public boolean add(E e) 将指定的元素添加到此集合的末尾
+扩展一下时间毫秒值，指的是从1970年1月1日 00:00:00走到此刻的总的毫秒值。
 
-public void add(int index,E e)  将指定元素插入指定的位置，通过索引确定，索引从0开始
+1h=60min=3600s=3600000ms
 
-public E get(int index)  返回索引处的元素
+```java
 
-public int size()  返回集合中元素的个数
-
-public E remove(int  index) 移出指定位置的元素，返回被删除的元素
-
-public boolean remove(Object o)  删除指定的元素，删除之后，后面的索引会自动减一
-
-public E set(int  index ,E e)  修改索引处的元素，返回被修改的元素
-
-附加： 想要删除包含某个字符的所有元素，配合String的contains方法使用，配合循环
-
-### ArrayList小测试
-
-需求：货物展示系统，同时需要制作货物的上架，下架
-
-```Java
 public class Demo {
-    public static void main(String[] args) {
-        goodsOperator g=new goodsOperator();
-        g.start();
-    }
-    public static class Goods{
-       private String  name;
-       private BigDecimal price;
-       private String info;
-
-        public String getName() {
-            return name;
+    public static void main(String[] args) throws InterruptedException {
+        long begMs = System.currentTimeMillis();
+        for (int i = 0; i < 1000; i++) {
+            Thread.sleep(1);
+            System.out.print(i+" ");
         }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public BigDecimal getPrice() {
-            return price;
-        }
-
-        public void setPrice(BigDecimal price) {
-            this.price = price;
-        }
-
-        public String getInfo() {
-            return info;
-        }
-
-        public void setInfo(String info) {
-            this.info = info;
-        }
-    }
-
-    public static class goodsOperator{
-        private List<Goods> goods=new ArrayList<Goods>();
-        public void addGoods(){
-            Goods g=new Goods();
-            Scanner sc=new Scanner(System.in);
-            System.out.print("请输入你想要添加的货物名：");
-            String goodsName = sc.next();
-            System.out.print("请输入你想要添加的货物价格：");
-            BigDecimal price=sc.nextBigDecimal();
-            System.out.print("请输入你想要添加的货物信息备注：");
-            String info=sc.next();
-            g.setName(goodsName);
-            g.setPrice(price);
-            g.setInfo(info);
-            goods.add(g);
-        }
-        public void showGood(){
-            if(goods.isEmpty()){
-                System.out.println("当前还无货物！！！  请添加货物");
-            }
-            for (int i = 0; i < goods.size(); i++) {
-                System.out.println("货物名："+goods.get(i).getName()+",价格："+goods.get(i).getPrice()+",备注信息："+goods.get(i).getInfo());
-            }
-        }
-        public boolean removeGoods(){
-            boolean flag=false;
-            if(goods.isEmpty()){
-                System.out.println("当前还无货物！！！  无法删除");
-                return false;
-            }
-            Scanner sc=new Scanner(System.in);
-            System.out.print("请输入要删除的货物名：");
-            String name = sc.next();
-            for (int i = 0; i < goods.size(); i++) {
-                if(goods.get(i).getName().equals(name))
-                {
-                    goods.remove(i);
-                    i--;
-                    flag=true;
-
-                }
-                else{
-                    System.out.println("货物名称有误！！删除"+name+"失败！！！");
-                    flag=false;
-
-                }
-            }
-            return flag;
-        }
-
-        public void start(){
-            Scanner sc=new Scanner(System.in);
-            while (true){
-                System.out.println("==============欢迎来到货物管理系统==============");
-                System.out.println("请选择你的操作：1、增加货物；2、删除货物，3、退出系统");
-                showGood();
-                int flag = sc.nextInt();
-                switch (flag)
-                {
-                    case 1:
-                        addGoods();
-                        break;
-                    case 2:
-                        removeGoods();
-                        break;
-                    case 3:
-                        System.out.println("退出系统！！！");
-                        return;
-                    default:
-                        System.out.println("命令选择有误，请重新选择！！！！");
-                        break;
-                }
-            }
-        }
+        long endMs = System.currentTimeMillis();
+        System.out.println();
+        System.out.println("花费了"+(endMs - begMs) / 1000.0+" 秒");
+        System.out.println("花费了"+(endMs - begMs ) +" 毫秒");
+        System.exit(-1);
     }
 }
+
+```
+
+## RunTime
+
+RunTime代表程序所在的运行环境。
+
+RunTime是一个单例类
+
+exec（程序路径）：用于打开软件，路径可以配置到环境变量中，这样就可以只用传入名字就可以了
+
+```java
+
+public class Demo {
+    public static void main(String[] args) throws IOException, InterruptedException {
+        Runtime runtime = Runtime.getRuntime();//单例类的获取实例方法
+        System.out.println("可用的处理器数："+runtime.availableProcessors());
+        System.out.println("内存总量："+runtime.totalMemory()/1024.0/1024.0 +"MB");//返回JAVA虚拟机的内存总量
+        System.out.println("可用的内存总量："+runtime.freeMemory()/1024.0/1024.0 +"MB");//返回JAVA虚拟机中可用的内存总量
+        Process exec = runtime.exec("D:\\QQ\\QQ.exe");//打开QQ
+        System.out.println(0.1 + 0.2);
+        Thread.sleep(5000);
+        exec.destroy();//关闭程序
+    }
+}
+
+```
+
+## BigDecimal
+
+用于解决浮点运算，出现结果失真的情况。一般涉及金额，都是用BigDecimal进行计算。
+
+常见的构造器：
+
+BigDecimal（double a）：不推荐使用，依旧可能会存在精度问题，将double转换成BigDecimal
+
+BigDecimal（String s）：把String转换成BigDecimal，推荐使用这个，结果可预见，不会存在精度的损失
+
+常见方法：
+
+**valueOf（double a）：转换一个double成BigDecimal，会自动将double转换为String，然后再转换为BigDecimal，一般直接使用valueOf既可，不用构造器，valueOf方法里面就有构造器**
+
+add（BigDecimal a）：加法
+
+subtract（BigDecimal a）：减法
+
+multiply（BigDecimal a）：乘法
+
+divide（BigDecimal a）：除法
+
+divide（BigDecimal a，精确几位，舍入模式）：除法，可以控制精确到小数几位
+
+doubleValue（）：将BigDecimal转换为double
+
+```java
+
+public class Demo {
+    public static void main(String[] args) {
+
+        System.out.println(0.1+0.2);//结果会失真 0.30000000000000004
+        BigDecimal b1=new BigDecimal("99.99999");
+
+        BigDecimal b2=new BigDecimal(Double.toString(99.99919));
+        BigDecimal bigDecimal = BigDecimal.valueOf(999);
+        BigDecimal b3 = BigDecimal.valueOf(0.1);
+        BigDecimal b4 = BigDecimal.valueOf(0.2);
+
+        System.out.println(b1.add(b2).subtract(bigDecimal));
+        System.out.println(bigDecimal);
+        System.out.println(b3.add(b4));
+        System.out.println(b3.multiply(b4));
+        System.out.println(b3.divide(b4,4, RoundingMode.UP));
+        double v = b3.divide(b4, 4, RoundingMode.UP).doubleValue();
+        System.out.println(v);
+    }
+}
+
+```
+
+## JDK8之前的传统日期时间
+
+### Date
+
+代表的是日期和时间，常用构造器：
+
+Date（）：创建一个Date对象，代表的是系统当前的日期时间
+
+Date（long d）：把时间毫秒值转换为日期时间Date对象
+
+常用方法：
+
+getTime（）：返回1970年1月1日 00：00：00走到此刻的总的毫秒数，看调用者
+
+setTime（long time）：设置日期时间对象的时间为当前时间毫秒值对应的时间
+
+```java
+public class DateDemo {
+    public static void main(String[] args) throws InterruptedException {
+        Date d=new Date();
+        System.out.println("当前日期时间："+d);
+        long time = d.getTime();
+        System.out.println("当前时间毫秒值："+time);
+        time+=2*1000;
+        Date d2=new Date(time);
+        System.out.println("加两秒日期时间："+d2);
+        System.out.println("当前日期时间："+d);
+        d.setTime(time);
+        System.out.println("设置后的日期时间："+d);
+    }
+}
+
 ```
 
