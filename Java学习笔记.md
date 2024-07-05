@@ -3568,3 +3568,208 @@ public class DateDemo {
 
 ```
 
+输出为：
+
+当前日期时间：Fri Jul 05 09:23:09 CST 2024
+当前时间毫秒值：1720142589455
+
+这样的日期时间可读性很差，所以我们需要对其进行转换，使用SimpleDateFormat
+
+### SimpleDateFormat
+
+代表简单日期格式化，可以把日期对象、时间毫秒值格式化为我们想要的形式
+
+常见构造器：
+
+SimpleDateFormat（String pattern）：创建简单日期格式化对象，并封装时间的格式
+
+格式化字符串里面字母代表的意思不同：y-年、m-月、d-日、H-时、m-分、s-秒，了解这些基本够用，不够就查API文档
+
+格式化时间的方法：
+
+format（Date date）：将日期格式化成日期/时间字符串
+
+format（Object time）：将时间毫秒值格式化成日期/时间字符串
+
+parse（String source）：把字符串解析成日期对象
+
+```java
+public class SimpDateFormatDemo {
+    public static void main(String[] args) throws ParseException {
+        Date d=new Date();
+        System.out.println("未转换之前的日期时间："+d);
+
+        long time = d.getTime();
+        System.out.println("时间毫秒值："+time);
+
+        SimpleDateFormat s=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String dFormat = s.format(d);
+        System.out.println("转换后的日期时间："+dFormat);
+        String format = s.format(time + 1000000);
+        System.out.println("转换后的日期时间："+format);
+
+        Date parse = s.parse(format);
+        System.out.println("String转换后的日期时间格式："+parse);
+    }
+}
+```
+
+案例：做一个秒杀小程序，两个人下单时间不一样，在指定时间之内为成功秒杀，之后为失败
+
+```java
+public class SimpleDateFormatDemo2 {
+    public static void main(String[] args) throws ParseException {
+        String startTime="2024-1-1 12:00:00";
+        String endTime="2024-1-1 12:10:00";
+        String aTime="2024-1-1 12:04:4";
+        String bTime="2024-1-1 12:10:01";
+
+        check(startTime,endTime,"A",aTime);
+        check(startTime,endTime,"B",bTime);
+    }
+    public static void  check(String startTime,String endTime,String name,String peopleTime) throws ParseException {
+        long beg = getLongTime(startTime);
+        long end = getLongTime(endTime);
+        long peo = getLongTime(peopleTime);
+        if(peo>=beg&&peo<=end)
+        {
+            System.out.println(name+"秒杀成功！！！");
+        }else {
+            System.out.println(name+"秒杀失败!!!");
+        }
+    }
+
+    public static long getLongTime(String d) throws ParseException {
+        SimpleDateFormat s=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date parse = s.parse(d);
+        return parse.getTime();
+    }
+}
+```
+
+### Calendar
+
+日历类是一个抽象类一般使用Calendar.getInstance()来获取对象，该对象是可变对象。代表系统此刻时间对应的日历，通过它可以单独获取修改时间中的年、月、日、时、分、秒等
+
+常见方法：
+
+getInstance（）：获取当前日历对象
+
+get（int field）：获取日历中的某个信息，月份是从0开始记录的 所以真实月份需要+1
+
+getTime（）：获取日期对象
+
+getTimeMillis（）：获取时间毫秒值
+
+set（int field，int value）：修改日历的某个信息
+
+add（int  field，int amount）：为 某个信息增加\减少指定的值
+
+其中field是枚举值Calendar.MONTH等
+
+```java
+public class CalendarDemo {
+    public static void main(String[] args) {
+        SimpleDateFormat sm=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Calendar c=Calendar.getInstance();
+        Date d = c.getTime();
+        System.out.println("Calendar的对象："+c);
+        System.out.println("getTime获取的日期时间对象："+sm.format(d));
+        System.out.println("获取当前月份："+(c.get(Calendar.MONTH)+1));
+        c.add(Calendar.MONTH,2);
+        System.out.println("当前日期加两个月："+(c.get(Calendar.MONTH)+1));
+        c.set(2022,11,2,15,24,45);
+
+        System.out.println("设置指定日期时间："+sm.format( c.getTime()));
+        System.out.println("设置后的日期毫秒值："+c.getTimeInMillis());
+    }
+}
+
+```
+
+## JDK8及之后的日期时间（推荐使用）
+
+介绍这个之前先对二者进行比较
+
+| JDK8之前的日期时间                           | JDK8之后的日期时间                                           |
+| -------------------------------------------- | ------------------------------------------------------------ |
+| 设计不合理，使用不方便，很多方法都被淘汰了   | 设计更加合理，使用更加方便，功能更丰富                       |
+| 都是可变对象，修改之后会丢失掉开始的时间信息 | 都是不可变对象，修改后会返回新的时间对象，不会丢失最开始的时间 |
+| 是线程不安全的                               | 是线程安全的                                                 |
+| 只能精确到毫秒                               | 能精确到毫秒、纳秒                                           |
+
+### LocalDate、LocalTime、LocalDateTime
+
+LocalDate：代表本地日期（年、月、日）
+
+LocalTime：代表本地时间（时、分、秒）
+
+LocalDateTime：代表本地日期时间（年、月、日、星期、时、分、秒、纳秒）
+
+他们获取对象的方法：
+
+Xxxx.now(); 获取系统当前时间对应的对象 
+
+常用方法：
+
+get日期格式();  如getYeay()； 获取对应的信息
+
+with日期格式（int num）；如withYear（int num）修改对应的日期格式，并返回新的日期时间对象
+
+plus日期格式s（int num）；如plusYears（int num）新增对应的日期，并返回新的日期时间对象
+
+minus日期格式s（int num）；如minusYears（int num）减去对应的日期，并返回新的日期时间对象
+
+LocalDate.of(int year,int month,int day)； 获取指定日期的LocalDate对象,LocalTime和LocalDateTime也一样
+
+equals（LocalDate date），isBefore（LocalDate date），isAfter（LocalDate date）  判断日期是否相等，在之前，在之后
+
+toLocalDat（）；toLocalTime（）；LocalDateTime可以使用，将类型转换为对应的类型
+
+对于LocalDateTime.of（LocalDate date,LocalTime time） 还可以这样使用
+
+```java
+public class LocalDateDemo {
+    public static void main(String[] args) {
+        LocalDate ld=LocalDate.now();
+        System.out.println(ld);
+        System.out.println("获取年："+ld.getYear());
+        System.out.println("获取月（名字）："+ld.getMonth());
+        System.out.println("获取月（数值）："+ld.getMonthValue());
+        System.out.println("获取本月第几天："+ld.getDayOfMonth());
+        System.out.println("获取本年第几天："+ld.getDayOfYear());
+        System.out.println("获取本周第几天："+ld.getDayOfWeek());
+        LocalDate ld2 = ld.plusYears(2);
+        System.out.println("获取加两年原始的时间："+ld);
+        System.out.println("获取加两年新获得的时间："+ld2);
+        System.out.println("===================");
+        LocalDate ld3 = ld.plusMonths(2);
+        System.out.println("获取加两月原始的时间："+ld);
+        System.out.println("获取加两年新获得的时间："+ld3);
+        System.out.println("===================");
+        LocalDate ld4 = ld.minusYears(5);
+        System.out.println("获取减两年原始的时间："+ld);
+        System.out.println("获取减两年新获得的时间："+ld4);
+        System.out.println("===================");
+        LocalDate ld5 = LocalDate.of(2022, 4, 1);
+        LocalDate ld6 = ld5.plusYears(2);
+
+        System.out.println("日期是否相等："+ld.equals(ld6));
+        System.out.println("日期是否在之后"+ld.isAfter(ld2));
+        System.out.println("日期是否在之后"+ld.isBefore(ld3));
+        LocalDate with = ld.with(ChronoField.YEAR, 2099);
+        LocalDate localDate = ld.withMonth(8);
+        System.out.println("修改后："+with);
+        System.out.println("原数据："+ld);
+        System.out.println("修改后："+localDate);
+        System.out.println("=============");
+        LocalDateTime date=LocalDateTime.now();
+        System.out.println(date);
+        LocalDate localDate1 = date.toLocalDate();
+        System.out.println(localDate1);
+        LocalTime localTime = date.toLocalTime();
+        System.out.println(localTime);
+    }
+}
+```
+
