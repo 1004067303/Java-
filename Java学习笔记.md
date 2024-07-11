@@ -3827,3 +3827,30 @@ public class ZonedDateTimeDemo {
 }
 ```
 
+### Instant
+
+用于替代Date，可以精确到纳秒，且是可变对象
+
+时间线上的某个时刻/时间戳。
+
+通过获取Instant的对象可以拿到此刻的时间，改时间由两部分组成：从1970-01-01 00：00：00开始走到现在的总秒数+不够1秒的纳秒数
+
+1秒=1000毫秒=1000 000 000纳秒
+
+1毫秒=1000微秒
+
+1微秒=1000纳秒
+
+常用方法：
+
+now（） 获取当前时间的instant对象（标准时间）
+
+getEpochSecond（） 获取从1970开始记录的秒数
+
+getNano（）  从时间线开始，获取从第二个开始的纳秒数
+
+plusMillis plusSeconds等  判断系列的方法
+
+minusXxx  减少时间系列的方法
+
+equals、isBefore、isAfter   增加时间系列的方法
