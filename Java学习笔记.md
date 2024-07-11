@@ -3773,3 +3773,57 @@ public class LocalDateDemo {
 }
 ```
 
+### ZoneId、ZoneDateTime
+
+ZoneId：时区、ZoneDateTime：带时区的时间
+
+ZoneId常见方法：
+
+getAvailableZoneIds（）  获取Java支持的所有时区
+
+SystemDefault（）  获取系统默认时区
+
+of（String zoneId） 获取一个指定时区
+
+ZoneDateTime常见方法：
+
+now（）   获取当前时区的ZoneDateTime对象
+
+now（ZoneId zone）  获取指定时区的对象
+
+get日期格式（）  如getYear，获取对应的日期时间
+
+with日期格式(时间)   修改对应的时间
+
+minus日期格式（时间） 减少对应的时间
+
+plus日期格式（时间） 增加对应的时间
+
+```java
+public class ZonedDateTimeDemo {
+    public static void main(String[] args) {
+        Set<String> ids = ZoneId.getAvailableZoneIds();
+        System.out.println(ids);
+        System.out.println("Java支持的所有时区："+ids);
+        System.out.println("==================");
+        ZoneId sysZone = ZoneId.systemDefault();
+        System.out.println("默认的时区："+sysZone);
+        System.out.println("==================");
+        sysZone=ZoneId.of("America/Marigot");
+        System.out.println("修改后的时区："+sysZone);
+        System.out.println("==================");
+        ZonedDateTime zDate=ZonedDateTime.now();
+        System.out.println("默认时区时间："+zDate);
+        System.out.println("==================");
+        ZonedDateTime zDate2=ZonedDateTime.now(sysZone);
+        System.out.println("指定时区的日期时间："+zDate2);
+        System.out.println("==================");
+        ZonedDateTime zonedDateTime = zDate2.plusYears(1);
+        System.out.println("增加一年后的时间："+zonedDateTime);
+        System.out.println("==================");
+        LocalDateTime localDateTime = zonedDateTime.toLocalDateTime();
+        System.out.println("转换成LocalDateTime："+localDateTime);
+    }
+}
+```
+
