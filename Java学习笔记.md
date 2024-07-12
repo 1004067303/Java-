@@ -3854,3 +3854,527 @@ plusMillis plusSeconds等  判断系列的方法
 minusXxx  减少时间系列的方法
 
 equals、isBefore、isAfter   增加时间系列的方法
+
+### DateTimeFormatter
+
+格式化器，用于时间的格式化、解析。是线程安全的
+
+常用方法：
+
+ofPattern（时间格式） 获取格式化对象
+
+format（时间对象） 格式化时间
+
+可以通过LocalDateTime的parse（charSequence text,DateTimeFormatter matter） 来解析时间
+
+也可以通过LocalDateTime的format（DateTimeFormatter matter）方法来进行格式化时间成字符串
+
+所以总的是可以两种方法来进行格式化时间
+
+```java
+public class DateTimeFormatterDemo {
+    public static void main(String[] args) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+        System.out.println("未格式化的现在时间："+now);
+        String str = now.format(formatter);//格式化方式一
+        System.out.println("方式一格式化后的时间："+str);
+        String str2 = formatter.format(now);//格式化方式二
+        System.out.println("方式二格式化后的时间："+str2);
+        String st="2024-06-05T17:10:40";
+        LocalDateTime parse = LocalDateTime.parse(st);
+        System.out.println("默认格式解析后的时间："+parse);
+        System.out.println("固定格式解析后的时间："+LocalDateTime.parse(str, formatter));
+    }
+}
+```
+
+### Period
+
+用于计算两个LocalDate对象相差的年数、月数、天数
+
+常用方法：
+
+between（LocalDate start，LocalDate end）  传入两个日期对象，得到Period对象
+
+getYears（）  计算间隔几年并返回
+
+getMonths（）  计算间隔几月并返回
+
+getDays（） 计算间隔几天并返回
+
+### Duration
+
+可以用于计算两个时间对象相差的天数，小时数、分钟数、秒数、纳秒数；支持LocalTIme、LocalDateTime、Instant
+
+常用方法：
+
+between（开始时间对象 start ，结束时间对象 end）  传入两个日期对象，得到Duration对象
+
+toDays（）  计算间隔天数
+
+toHours（）  计算间隔小时数
+
+类推至纳秒
+
+## Arrays
+
+是用来操作数组的一个工具类
+
+常用方法：
+
+toString（）  返回数组内容
+
+copyOfRange（类型[] arr，起始索引，结束索引）  拷贝数组（指定范围） 从--开始 到--结束 包前不包后
+
+copyOf（类型[] arr，int  newLangth）  拷贝数组
+
+setAll（double[] arr，IntToDoubleFunction generator） 把数组中的原数据改为新数据
+
+sort（类型[] arr）    对数组进行排序（默认是升序）
+
+```java
+public class ArraysDemo {
+    public static void main(String[] args) {
+        int[] arr={24,524,53,633};
+        //拷贝数据，从--开始 到--结束 包前不包后
+        int[] demos = Arrays.copyOfRange(arr, 1, 3);
+        System.out.println("原数组为："+Arrays.toString(demos));
+        System.out.println("拷贝[1,3)的数组："+Arrays.toString(demos));
+        //拷贝数据，并给出长度
+        int[] ints = Arrays.copyOf(arr, 10);
+        System.out.println("拷贝该数组长度为10："+Arrays.toString(ints));
+        int[] ints2 = Arrays.copyOf(arr, 3);
+        System.out.println("拷贝该数组长度为3："+Arrays.toString(ints2));
+        Arrays.sort(arr);
+        System.out.println("排序后的数组："+Arrays.toString( arr));
+        double[] arr2={2.4,99993.54,44.4,555.4,10000};
+        System.out.println("arr2数组："+Arrays.toString(arr2));
+        //设置所有数据，通过匿名内部类进行操作，看源码，内部是循环,IntToDoubleFunction是一个匿名内部类，是一个接口 所以需要传入它的实现类
+        Arrays.setAll(arr2, new IntToDoubleFunction() {
+            @Override
+            public double applyAsDouble(int value) {
+                return arr2[value]*0.8;
+            }
+        });
+        /*
+        //lambda表达式 对匿名内部类进行简写
+        Arrays.setAll(arr2, (int value)-> {
+                return arr2[value]*0.8;
+        });*/
+        System.out.println("全部重新设置后的arr2数组："+Arrays.toString(arr2));
+        Arrays.sort(arr2);
+        System.out.println("排序后的arr2数组："+Arrays.toString(arr2));
+    }
+}
+```
+
+## Comparable和Comparator
+
+Comparable和Comparator都是用来重写比较规则的
+
+### Comparable
+
+让被比较的对象的类实现Comparable（比较规则）接口，然后重写compareTo方法，自己来制定规则。
+
+### Comparator
+
+使用下面这个sort方法，创建Comparator比较器接口的匿名内部类对象，然后自己制定规则
+
+``public static <T> void sort(T[] arr,Comparator<? super T> c)``
+
+比较规则一般为：
+
+​	左边>右边  正整数
+​	左边=右边   0
+​        左边<右边  负整数
+
+这两个接口都是通过重写某个方法来达到制定排序规则
+
+```java
+public class ArraysSortDemo {
+    public static void main(String[] args) {
+        //List<Student> list=new ArrayList<>();
+        Student[] list=new Student[3];
+        list[0]=new Student("学生1",12,"J12935");
+        list[1]=new Student("学生2",19,"J12934");
+        list[2]=new Student("学生3",10,"J12932");
+
+
+        Person[] list2=new Person[3];
+        list2[0]=new Person("Person1",12,"J12935");
+        list2[1]=new Person("Person2",19,"J12934");
+        list2[2]=new Person("Person3",10,"J12932");
+        System.out.println("list1未排序顺序："+Arrays.toString(list));
+        Arrays.sort(list);
+        System.out.println("list1排序后顺序："+Arrays.toString(list));
+        System.out.println("===================");
+        System.out.println("list2未排序顺序："+Arrays.toString(list2));
+        Arrays.sort(list2, new Comparator<Person>() {
+            @Override
+            public int compare(Person o1, Person o2) {
+
+                //return Integer.compare(o1.getAge(),o2.getAge());
+                return o1.getAge()-o2.getAge();
+            }
+        });                     
+        System.out.println("list2排序后："+Arrays.toString(list2));
+
+    }
+}
+
+class Sort   {
+    public static int SortByData(Person t1,Person t2)
+    {
+        return t1.getAge()- t2.getAge();
+    }
+}
+class Student implements Comparable<Student>{
+    private String name;
+    private int age;
+    private String StuNo;
+
+    public Student() {
+    }
+
+    public Student(String name, int age, String stuNo) {
+        this.name = name;
+        this.age = age;
+        StuNo = stuNo;
+    }
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "name='" + name + '\'' +
+                ", age=" + age +
+                ", StuNo='" + StuNo + '\'' +
+                '}';
+    }
+
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String getStuNo() {
+        return StuNo;
+    }
+
+    public void setStuNo(String stuNo) {
+        StuNo = stuNo;
+    }
+    /*this 左边  o右边
+      左边>右边  正整数
+      左边=右边   0
+      左边<右边  负整数
+    */
+    @Override
+    public int compareTo(Student o) {
+      /*  if(this.age>o.age)
+        {
+            return 1;
+        }
+        else if (this.age<o.age) {
+            return  -1;
+        }
+        return 0;*/
+        return  this.age-o.age; //升序
+        //return  o.age-this.age; //降序
+    }
+}
+
+class Person {
+
+    private String name;
+    private int age;
+    private String StuNo;
+
+    @Override
+    public String toString() {
+        return "Person{" +
+                "name='" + name + '\'' +
+                ", age=" + age +
+                ", StuNo='" + StuNo + '\'' +
+                '}';
+    }
+
+    public Person() {
+    }
+
+    public Person(String name, int age, String stuNo) {
+        this.name = name;
+        this.age = age;
+        StuNo = stuNo;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String getStuNo() {
+        return StuNo;
+    }
+
+    public void setStuNo(String stuNo) {
+        StuNo = stuNo;
+    }
+
+}
+```
+
+## lambda表达式
+
+lambda表达式是JDK8之后新增的一种语法形式，主要作用是用来简化匿名内部类的代码写法，但是只能简化函数式接口的匿名内部类
+
+函数式接口：
+
+有且仅有一个抽象方法的接口。
+
+大部分的函数式接口，都会加上一个@FunctionInterface的注解，有这个注解的就必定是函数式接口。
+
+格式：
+
+```java
+(被重写的方法的形参列表)->{
+    被重写的方法的代码
+}
+```
+
+lambda表达式的省略写法（进一步简化Lambda表达式的写法）
+
+参数类型可以省略不写。
+
+如果只有一个参数，参数类型可以省略，同时（）也可以省略
+
+如果lambda表达式中的方法体只有一行代码，可以省略大括号不写，同时省略分号，此时，如果这行代码是return语句，也必须去掉return不写。
+
+个人建议，别省略太过，可能会导致代码可读性很差
+
+```java
+/*
+lambda 表达式如果用于简化匿名内部类，只能简化函数式接口， 即接口内只有一个抽象方法
+lambda中 参数类型可以省略不写，仅仅只有一行代码 则{}不需要，且如果是return语句 则return也不需要写
+ */
+public class LambdaDemo1 {
+    public static void main(String[] args) {
+        Action a=()-> System.out.println("游泳！");
+        a.swim();
+    }
+}
+@FunctionalInterface//函数式接口的注解
+interface Action{
+    void swim();
+   // void test();
+}
+
+```
+
+### 静态方法的引用
+
+引用形式：  类名：：静态方法
+
+使用场景： 如果某个lambda表达式里面只是调用一个静态方法，且前后参数的形式一致，就可以使用静态方法引用
+
+### 实例方法的引用
+
+引用形式： 对象名：：实例方法
+
+使用场景： 如果lambda表达式里面只是调用一个实例方法，且前后参数形式一致，就可以使用实例方法的引用
+
+### 特定类型的方法引用
+
+引用形式： 类型：：方法
+
+使用场景： 如果某个lambda表达式里面只是调用一个实例方法，并且前面参数列表中第一个参数是作为方法的主调，后面的所有参数都是作为该实例方法的入参的，则此时就可以使用特定类型的方法引用
+
+### 构造器引用
+
+引用形式： 类名：：new
+
+使用场景： 如果某个lambda表达式里面只是创建对象，且前后参数情况一致，就可以使用构造器引用
+
+```java
+
+public class MethodUseDemo {
+    public static void main(String[] args) {
+        Person[] list = new Person[]{
+                new Person("t1", 1),
+                new Person("t2", 4),
+                new Person("t3", 2)
+        };
+        System.out.println("排序前：" + Arrays.toString(list));
+     /*
+     //正常使用这个即可
+      Arrays.sort(list, new Comparator<Person>() {
+            @Override
+            public int compare(Person o1, Person o2) {
+                return o1.getAge()-o2.getAge();//升序
+            }
+        });
+*/
+        //Arrays.sort(list,(o1, o2) -> StaticUse.StaticCompare(o1,o2) );//这样子也可以引用，但是可以简化
+        Arrays.sort(list, StaticUse::StaticCompare);//去掉入参，直接引用  这就是静态引用
+        System.out.println("升序排序后：" + Arrays.toString(list));
+        System.out.println("===========");
+        StaticUse sta = new StaticUse();
+        /*Arrays.sort(list, new Comparator<Person>() {
+            @Override
+            public int compare(Person o1, Person o2) {
+                return 0;
+            }
+        });*/
+        Arrays.sort(list, ((o1, o2) -> sta.Compare(o1, o2)));//这样子也可以引用，但是可以简化
+        Arrays.sort(list, sta::Compare);//这就是实例引用
+        System.out.println("降序排序后：" + Arrays.toString(list));
+        System.out.println("==================");
+        String[] sList = new String[]{
+                "Aas", "abs", "Zsa", "sda", "Sdaa", "qus", "Qas"
+        };
+        System.out.println("排序之前：" + Arrays.toString(sList));
+       /* 忽略大小写进行比较
+       Arrays.sort(sList, new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                return o1.compareToIgnoreCase(o2);
+            }
+        });*/
+        //Arrays.sort(sList,(o1,o2)->o1.compareToIgnoreCase(o2));//这样的方法可以简化，满足条件
+        Arrays.sort(sList, String::compareToIgnoreCase);//这就是特定方法的引用
+        System.out.println("排序之后：" + Arrays.toString(sList));
+        System.out.println("============");
+        /*NewPerson p=new NewPerson() {
+            @Override
+            public Person GetPerson(String name, int age) {
+                return new Person(name,age);
+            }
+        };*/
+        //NewPerson p= (name,age)-> new Person(name,age);
+        NewPerson p = Person::new;//这就是构造器引用，
+        System.out.println(p.GetPerson("test", 23));
+    }
+}
+
+class StaticUse {
+    static int StaticCompare(Person t1, Person t2) {
+        return t1.getAge() - t2.getAge();
+    }
+
+    int Compare(Person t1, Person t2) {
+        return t2.getAge() - t1.getAge();
+    }
+}
+
+interface NewPerson {
+    Person GetPerson(String name, int age);
+}
+
+class Person {
+    String name;
+    int age;
+
+    public Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public Person() {
+    }
+
+    @Override
+    public String toString() {
+        return "Person{" +
+                "name='" + name + '\'' +
+                ", age=" + age +
+                '}';
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+}
+
+```
+
+# 简单算法
+
+首先我们需要知道什么是算法！
+
+算法在计算机中，就是解决某个问题的过程和方法，比如排序和查找，这些就是最常见的算法，说到底其实还是一种编程思维
+
+## 排序算法
+
+### 冒泡排序
+
+每次从数组中找到最大值，然后放到数组的最后去，即从第一个位置开始进行判断，和第二个值进行比较，如果第一个大于第二个数，则二者交换位置，目的是为了让最大值放到最后去，然后再对第二位和第三位比较，以此类推至最后一位，一次完整比较就可以拿到一位。
+
+```JAVA
+public class BubblingAlgorithmDemo {
+    public static void main(String[] args) {
+        int[] list=new int[]{1,2,42,21,4,2,50,12,54,51,5};
+        System.out.println(Arrays.toString(Bubbling(list)));
+    }
+    /*
+    冒泡排序，通过循环，每次拿到最大数，放到末尾，然后长度减一，在进行排序
+     */
+    static int[] Bubbling(int[] t){
+        if(t!=null) {
+            int temp = 0;
+            for(int j=0;j< t.length-1;j++) {
+                for (int i = 1; i <= t.length - 1; i++) {
+                    if (t[i - 1] > t[i]) {
+                        temp = t[i];
+                        t[i] = t[i - 1];
+                        t[i - 1] = temp;
+                    }
+                }
+            }
+            return t;
+        }
+        else {
+            return null;
+        }
+    }
+}
+
+```
+
+
+
+### 选择排序

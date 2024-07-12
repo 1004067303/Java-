@@ -1,5 +1,7 @@
 package com.Jha.Base;
 
+import UtilsDemo.UtlisDemo;
+
 public class Demo {
     public static void main(String[] args) {
        A a=new B();
@@ -11,7 +13,8 @@ public class Demo {
         System.out.println("==================");
         A c=new C();
         go(c);
-
+        System.out.println("测试包引用");
+        System.out.println(UtlisDemo.GetYzm(7));
     }
     public static void go(A a){
         a.show();
