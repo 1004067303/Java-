@@ -4342,7 +4342,13 @@ class Person {
 
 ### 冒泡排序
 
+$$
+时间复杂度  O(n^2)
+$$
+
 每次从数组中找到最大值，然后放到数组的最后去，即从第一个位置开始进行判断，和第二个值进行比较，如果第一个大于第二个数，则二者交换位置，目的是为了让最大值放到最后去，然后再对第二位和第三位比较，以此类推至最后一位，一次完整比较就可以拿到一位。
+
+![img](D:\JAVA\JavaDemo\笔记图片\bubbleSort.gif)
 
 ```JAVA
 public class BubblingAlgorithmDemo {
@@ -4378,3 +4384,232 @@ public class BubblingAlgorithmDemo {
 
 
 ### 选择排序
+
+$$
+时间复杂度  O(n^2)
+$$
+
+ 
+
+首先在未排序序列中找到最小（大）元素，存放到排序序列的起始位置。
+
+再从剩余未排序元素中继续寻找最小（大）元素，然后放到已排序序列的末尾。
+
+重复第二步，直到所有元素均排序完毕。
+
+![img](D:\JAVA\JavaDemo\笔记图片\selectionSort.gif)
+
+```java
+
+public class SelectSortDemo {
+    public static void main(String[] args) {
+        int[] list=new int[]{1,2,42,21,4,2,50,12,54,51,5};
+        int[] array = UtlisDemo.getArray(5000, 1, 100000);
+        double start = System.currentTimeMillis();
+        System.out.println("开始时间："+(start));
+        System.out.println("================");
+        System.out.println(Arrays.toString(selectSort(list)));
+        //System.out.println(Arrays.toString(selectSort(array)));
+       /* Arrays.sort(array);
+        System.out.println(Arrays.toString(selectSort(array)));*/
+
+        double end = System.currentTimeMillis();
+        System.out.println("结束时间："+(end));
+        System.out.println("用时："+((end-start)/1000));
+
+
+    }
+    static int [] selectSort(int[] num){
+        // 总共要经过 N-1 轮比较
+        for (int i = 0; i < num.length-1; i++) {
+            int min=i;
+            // 每轮需要比较的次数 N-i
+            for (int j=i+1;j<num.length;j++)
+            {
+                if(num[j]<num[min])
+                {
+                    // 记录目前能找到的最小值元素的下标
+                    min=j;
+                }
+            }
+            // 将找到的最小值和i位置所在的值进行交换,加判断减少交换次数
+            if (i != min) {
+                int tmp = num[i];
+                num[i] = num[min];
+                num[min] = tmp;
+            }
+            //System.out.println(Arrays.toString(num));
+        }
+
+        return num  ;
+    }
+}
+
+```
+
+
+
+### 插入排序
+
+$$
+时间复杂度  O(n^2)
+$$
+
+将第一待排序序列第一个元素看做一个有序序列，把第二个元素到最后一个元素当成是未排序序列。
+
+从头到尾依次扫描未排序序列，将扫描到的每个元素插入有序序列的适当位置。（如果待插入的元素与有序序列中的某个元素相等，则将
+
+待插入元素插入到相等元素的后面。）
+
+![img](D:\JAVA\JavaDemo\笔记图片\insertionSort.gif)
+
+```java
+
+public class InsertSortDemo {
+    public static void main(String[] args) {
+        int[] list=new int[]{1,2,42,21,4,2,50,12,54,51,5};
+        int[] array = UtlisDemo.getArray(5000, 1, 100000);
+        double start = System.currentTimeMillis();
+        System.out.println("开始时间："+(start));
+        System.out.println("================");
+        //System.out.println(Arrays.toString(InsertSort(list)));
+        System.out.println(Arrays.toString(InsertSort(array)));
+
+
+        double end = System.currentTimeMillis();
+        System.out.println("结束时间："+(end));
+        System.out.println("用时："+((end-start)/1000));
+
+    }
+    /*
+    插入排序，从第二个数开始，将第一个数看做为有序序列，后面的看为无序序列，然后取无序序列的第一个数去和有序序列的最后一个数开始比较，插入相应的位置
+    1,2,5,3
+    1,2,5,3
+    1,2,3,5
+     */
+    static int[] InsertSort(int[] num){
+        for (int i = 1; i < num.length; i++) //共N-1次插入，从第二个数开始，判断和左边有序序列大小关系进行插入
+        {
+            for(int j=i;j>0;j--)//同步无序序列首位数开始进行判断，依次递减，知道第一位数字进行判断
+            {
+                if (num[j-1] > num[j]) {
+                    int temp = num[j];
+                    num[j] = num[j-1];
+                    num[j-1] = temp;
+                }
+            }
+            //System.out.println(Arrays.toString(num));
+        }
+        return num  ;
+    }
+}
+
+```
+
+### 希尔排序
+
+时间复杂度**O(n^(1.3—2))**
+
+希尔排序是将数据进行分组，对每一组进行插入排序，每一组有序之后，最后就变得有序了，分组的依据就是通过步长来进行，一般为数据长度/2，然后知道除为1，即做直接插入排序，这样就对一组数据做了希尔排序
+
+![img](D:\JAVA\JavaDemo\笔记图片\2420a8091f7912b8f72f7c3e68eb3f7a.gif)
+
+[排序算法 —— 希尔排序（图文超详细）-CSDN博客](https://blog.csdn.net/m0_63033419/article/details/127524644)
+
+想要详细了解可以看这个博客，较为清楚明白
+
+实际上希尔排序是对插入排序的一种优化，避免最小值在最右边导致大量的位置交换
+
+```java
+public class ShellSortDemo {
+    public static void main(String[] args) {
+        int[] list=new int[]{1,2,42,21,4,2,50,12,54,51,5};
+        Shell(list);
+        System.out.println(Arrays.toString(list));
+    }
+    public static void Shell(int[] array2) {
+        int gap = array2.length;//为数组的长度 - 为10
+        while (gap > 1) {
+            gap /= 2;//先是分成了5组，然后是2组，再是1组
+            ShellSort(array2,gap);//调用直接插入排序方法
+        }
+    }
+
+
+    static int[] ShellSort(int[] array2,int gap){
+
+        for (int i = gap; i < array2.length ; i++) {
+            int tmp = array2[i];//tmp存放i下标的值
+            int j = i - gap;//j下标为i-gap个位置
+            //j每次-gap个位置
+            for (; j >= 0; j-=gap) {
+                if (array2[j] > tmp) {
+                    //j下标的值大，将j下标的值放到j变量加上一个gap的位置上
+                    array2[j + gap] = array2[j];
+                }else {
+                    //j下标的值较小，j下标的值要直接放到j变量加上一个gap的位置上
+                    break;
+                }
+            }
+            //此时j下标的值是负数了，将tmp的值放到j变量加上一个gap的位置上
+            array2[j + gap] = tmp;
+            //System.out.println(Arrays.toString(array2));
+        }
+        return  array2;
+    }
+}
+
+```
+
+还有其他一些算法，这里不做介绍，需要了解，自行百度。
+
+剩下的分别有：归并排序，快速排序，堆排序，计数排序，桶排序，基数排序等
+
+## 查找算法
+
+查找算法是用来在一组数据中查找某个值的一种方法，常用的有，顺序查找（也称线性查找）、二分查找
+
+### 顺序查找
+
+$$
+时间复杂度  O(n)
+$$
+
+是一种简单的查找算法，它从第一个元素开始依次比较，直到找到要查找的元素，或者搜索到最后一个元素。适用于数据量较小的列表，时间复杂度为 O(n)。
+
+```java
+public class SequentialSearchDemo {
+    public static void main(String[] args) {
+        int[] list=new int[]{1,2,42,21,4,2,50,12,54,51,5};
+        System.out.println("数组为："+Arrays.toString(list));
+        System.out.println("查找的数据为："+SequentialSearch(list, 51));
+    }
+    static int SequentialSearch(int[] list,int num){
+        int n=-1;
+        int flag=-1;
+        for (int i = 0; i < list.length; i++) {
+            if(list[i]==num)
+            {
+                n= list[i];
+                flag=i;
+                break;
+            }
+            else {
+                n=-1;
+
+            }
+        }
+        if(n!=-1)
+        {
+            System.out.println("数据的索引为："+flag);
+        }
+        else {
+            System.out.println("未找到数据："+num );
+        }
+        return n;
+    }
+}
+
+```
+
+### 二分查找
