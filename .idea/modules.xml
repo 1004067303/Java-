@@ -8,6 +8,7 @@
       <module fileurl="file://$PROJECT_DIR$/JavaDemo.iml" filepath="$PROJECT_DIR$/JavaDemo.iml" />
       <module fileurl="file://$PROJECT_DIR$/OOPDemo/OOPDemo.iml" filepath="$PROJECT_DIR$/OOPDemo/OOPDemo.iml" />
       <module fileurl="file://$PROJECT_DIR$/ObjDemo/ObjDemo.iml" filepath="$PROJECT_DIR$/ObjDemo/ObjDemo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Regex/Regex.iml" filepath="$PROJECT_DIR$/Regex/Regex.iml" />
       <module fileurl="file://$PROJECT_DIR$/UtlisTools/UtlisTools.iml" filepath="$PROJECT_DIR$/UtlisTools/UtlisTools.iml" />
     </modules>
   </component>

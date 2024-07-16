@@ -4614,4 +4614,135 @@ public class SequentialSearchDemo {
 
 ### 二分查找
 
-二分查找
+二分查找是基于一个有序序列。通过左右边界，然后取中间的数进行比较，更新左右边界，最后直至左右边界相当，得出查到或者未查到数据
+
+二分查找的前提条件是有序数列，普通查找则不需要。
+  查找到返回该元素的下标，否则返回-1。
+  普通查找的时间复杂度为O(N), 二分查找的时间复杂度为O(logN)。
+
+![](D:\JAVA\JavaDemo\笔记图片\BianrySearch.png)
+
+```java
+
+public class BinarySearchDemo {
+    public static void main(String[] args) {
+        int[] list=new int[]{1,2,3,4,5,6,7,8};
+        int i = BinarySearch(list, 2);
+    }
+
+    public static int BinarySearch(int[] list, int num){
+        int left=0;//左边界
+        int right=list.length-1;//右边界
+        int mid=-1;//中间位置
+        int ref=-1;
+       while (left<=right){//循环停止条件，即最坏情况，走到最后一步才找到
+           mid=(left+right)/2;//每次循环都更新一下中间位置
+           if(num<list[mid]){
+               right=mid-1;//中间值大于查找值，更新右边界，为中间值-1
+           } else if (num>list[mid]) {
+               left=mid+1;//中间值小于查找值，更新左边界，为中间值+1
+           } else if (num==list[mid]) {
+               ref=list[mid];
+               break;
+           }
+       }
+        if(ref!=-1){
+            System.out.println("找到了数据"+num+"位置在："+mid);
+        }else {
+            System.out.println("数据未找到！");
+        }
+        return ref;
+    }
+}
+
+```
+
+# 正则表达式
+
+正则表达式就是由一些特定的字符组成，代表的是一个规则
+
+作用：
+
+校验数据格式是否合法：如QQ号，手机号，邮箱号等
+
+在一段文本中查找符合要求的内容
+
+String类中提供了一个匹配正则表达式的方法
+
+``public boolean matches(String regex)``判断字符串是否匹配正则表达式，匹配返回true，不匹配返回false
+
+[Java 正则表达式的用法和实例-CSDN博客](https://blog.csdn.net/weixin_43860260/article/details/91417485)
+
+具体看这个，实际应用时基本就是现场百度
+
+```JAVA
+
+public class RegexDemo {
+    public static void main(String[] args) {
+        //CheckQQ();
+        //CheckPhone();
+       // CheckEmail();
+        GetMsg();
+    }
+    static boolean CheckQQ(){
+        boolean flag;
+        while (true){
+            System.out.print("请输入你的QQ：");
+            Scanner sc=new Scanner(System.in);
+            String QQ=sc.nextLine();
+            flag=QQ.matches("[1-9]\\d{7,11}");
+            if(flag){
+                System.out.println("输入的QQ格式正确！！");
+                return flag;
+            }else {
+                System.out.println("输入的QQ格式不正确！！");
+            }
+        }
+    }
+    static boolean CheckPhone(){
+        // 13592879821  010-1192939  010992313
+        boolean flag;
+        while (true){
+            System.out.print("请输入你的电话号码：");
+            Scanner sc=new Scanner(System.in);
+            String Phone=sc.nextLine();
+            flag=Phone.matches("([1][3-9]\\d{9})||(0\\d{2,5}-?[1-9]\\d{4,19})");
+            if(flag){
+                System.out.println("输入的电话号码格式正确！！");
+                return flag;
+            }else {
+                System.out.println("输入的电话号码格式不正确！！");
+            }
+        }
+    }
+    static boolean CheckEmail(){
+        // 1004067303@qq.com   j1004067303@163.com  jha@BJDX.com.cn
+        boolean flag;
+        while (true){
+            System.out.print("请输入你的邮箱：");
+            Scanner sc=new Scanner(System.in);
+            String Email=sc.nextLine();
+            flag=Email.matches("\\w{6,19}@\\w{2,10}(\\.\\w{2,10}){1,3}");
+            if(flag){
+                System.out.println("输入的邮箱格式正确！！");
+                return flag;
+            }else {
+                System.out.println("输入的邮箱格式不正确！！");
+            }
+        }
+    }
+
+    static void GetMsg(){
+        String msg="QQ号：1004067303，\n"+"手机号：19110989876，\n"+"还有邮箱：1004067303@qq.com。";
+        String regex="((\\w{6,19}@\\w{2,10}(\\.\\w{2,10}){1,3})|[1-9]\\d{7,11})|(([1][3-9]\\d{9})||(0\\d{2,5}-?[1-9]\\d{4,19}))";
+        Pattern compile = Pattern.compile(regex);
+        Matcher matcher = compile.matcher(msg);
+        while (matcher.find()){
+            String s=matcher.group();
+            System.out.print(s+"   ");
+        }
+    }
+}
+
+```
+
