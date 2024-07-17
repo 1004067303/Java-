@@ -4746,3 +4746,62 @@ public class RegexDemo {
 
 ```
 
+# 异常
+
+异常就是代表程序出现的问题，如类型转换异常，数组下标越界等
+
+异常的体系
+
+```mermaid
+graph TD;
+    Java.lang.Throwable-->Error;
+    Java.lang.Throwable-->Exception;
+    Exception-->RuntimeException
+    Exception-->其他异常;
+    RuntimeException-->...;
+```
+
+Error：代表的系统级别的错误（属于严重问题），即系统一旦出现问题，sun公司会把这些问题封装成Error对象给出来，这个基本可以不用理会，因为这是sun公司自己用的，我们基本上来说用不到，知道有就可以
+
+Exception：叫异常，它代表的是我们程序可能出现的问题，所以，一般会用Exception以及它的一些子类来封装程序出现的问题。
+
+RuntimeException：运行时异常。它和它的子类，编译阶段不会出现错误提醒，运行时出现的异常（如数组下标越界，除0错误）
+
+编译时异常：在编译阶段就会出现错误提醒（如日期解析异常），即需要对异常进行处理（抛出，或者try-catch）
+
+出现编译时异常的解决方法：
+
+**抛出异常（throw）**
+
+在方法上使用throw关键字，可以将方法内部的异常抛出去给调用者处理，都是往上层抛，如果一直没人解决，最后会到JVM中去，JVM对异常的处理就是自己加一个try-catch把异常信息打印到控制台
+
+**捕获异常（try-catch)**
+
+直接捕获程序出现的异常并进行处理，格式为：
+
+```java
+try{
+    //监视可能出问题的代码
+}catch(异常类型1 变量){
+    //处理异常
+}catch(异常类型1 变量){
+    //处理异常
+}
+```
+
+```java
+public class ExceptionDemo {
+    public static void main(String[] args) //throws ParseException
+    {
+      String time="2024-11-11 11:11:11";
+        try {
+            SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date parse = format.parse(time);//编译器会报错，如果不进行处理，这就是一个编译时异常
+            System.out.println(parse);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+
