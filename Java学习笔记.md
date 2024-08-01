@@ -4823,3 +4823,242 @@ Java无法为所有的问题提供异常类，假如想要处理自己遇到的�
 重写构造器
 
 通过throw new 异常类（xxx）来创建异常对象并抛出。编译阶段就会报错，提醒强烈。
+
+通过定义两个自定义异常类，一个运行时异常，一个编译时异常
+
+```java
+public class AgeOutException extends Exception {
+    public AgeOutException() {
+    }
+
+    public AgeOutException(String message) {
+        super(message);
+    }
+}
+
+```
+
+```java
+public class AgeOutRunTimeException extends RuntimeException {
+    public AgeOutRunTimeException() {
+    }
+
+    public AgeOutRunTimeException(String message) {
+        super(message);
+    }
+}
+
+```
+
+```java
+public class ExceptionDemo {
+    public static void main(String[] args) throws AgeOutException //throws ParseException
+    {
+      String time="2024-11-11 11:11:11";
+        try {
+            SimpleDateFormat format=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            Date parse = format.parse(time);//编译器会报错，如果不进行处理，这就是一个编译时异常
+            System.out.println(parse);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+        saveAge(1);
+        try {
+            saveAge2(-44);
+        } catch (AgeOutException e) {
+            System.out.println(e.getMessage());
+            throw new AgeOutException();
+        }
+    }
+
+    public static void saveAge(int age){
+        if(age<0||age>120){
+            throw new AgeOutRunTimeException("年龄出入不正确，小于0或大于120");
+        }
+        System.out.println("年龄是："+age);
+    }
+    public static void saveAge2(int age) throws AgeOutException {
+        if(age<0||age>120){
+            throw new AgeOutException("年龄出入不正确，小于0或大于120");
+        }
+        System.out.println("年龄是："+age);
+    }
+}
+
+```
+
+通过异常来进行处理一些问题，让交互变得更加的友好，且可以通过异常处理来解决一些问题，如键盘输入，只接收浮点数时，输入字符会造成运行时异常造成程序停止，通过异常处理使其避免停止
+
+```java
+public class ExceptionTest {
+    public static void main(String[] args) {
+        while (true) {
+            try {
+                getMoney();
+                break;
+            } catch (Exception e) {
+                System.out.println("请输入正确的数字！！");
+
+            }
+        }
+    }
+    public static double getMoney(){
+        Scanner sc=new Scanner(System.in);
+        while (true) {
+            System.out.print("请输入价格：");
+            double price = sc.nextDouble();
+            if (price >= 0) {
+                return price;
+            } else {
+                System.out.println("您输入的价格不合适！！请重新输入：");
+            }
+        }
+    }
+}
+```
+
+# 集合
+
+集合是一种容器，用来装数据的，类似于数组，但是集合的大小可变，在开发者比较实用
+
+## 集合体系结构
+
+分为Collection（单列集合）和Map（双列集合）
+
+## 单列集合
+
+每个元素（数据）只包含一个值
+
+![image-20240731145001141](D:\JAVA\JavaDemo\笔记图片\image-20240731145001141-1722408607170-1.png)
+
+### **集合Collection常用方法**：
+
+此处仅仅是父接口Collection包含的方法，子类特有方法此处暂时不讲，比如ArrayList中的get方法就是子类独有方法
+
+add(E  e)     添加元素
+
+crear()    清空集合元素
+
+isEmpty()    判断集合是否为空
+
+size()      返回集合大小
+
+contains(Object   o)      判断集合中是否存在o元素
+
+remove（E  e）     移除e元素，如果有多个，移除最前面那个
+
+toArray（）     把集合转换为数组
+
+```java
+public class ArrayListDemo {
+    public static void main(String[] args) {
+        //可重复，有序，有索引
+        Collection<String> list=new ArrayList<String>();
+        list.add("王老霉");
+        list.add("王老霉");
+        list.add("加少宝");
+        list.add("雷碧");
+        list.add("可恨");
+        System.out.println("有序集合："+list);
+        list.clear();
+        System.out.println("清除之后的列表："+list);
+        list.add("可恨");
+        list.add("雷碧");
+        list.add("王老霉");
+        list.add("王老霉");
+        list.add("加少宝");
+        System.out.println("新添加之后的列表："+list);
+        list.remove("雷碧");
+        list.remove("王老霉");
+        System.out.println("移除部分之后的列表："+list);
+        System.out.println("列表是否为空："+list.isEmpty());
+        System.out.println("列表大小："+list.size());
+        System.out.println("列表是否存在 可恨："+list.contains("可恨"));
+
+        Object[] s=list.toArray();
+        System.out.println("转为数组："+Arrays.toString(s));
+        //不可重复，无序，无索引
+        Collection<String> set=new HashSet<String>();
+        set.add("王老霉");
+        set.add("王老霉");
+        set.add("加少宝");
+        set.add("雷碧");
+        set.add("可恨");
+        System.out.println("无序集合："+set);
+    }
+}
+```
+
+### 迭代器
+
+迭代器是用来遍历集合的专用方式（数组是没有迭代器的），关键字为 **Iterator**
+
+在此抛出一个知识点，我们原先都是使用for循环来进行遍历，但是for循环使用条件是需要有索引，而Collection集合的子类并不全是有索引的，如List接口存在索引，而Set接口是无索引的，因此不能使用for循环来进行遍历，所以就采用迭代器来进行遍历
+
+Collection集合获取迭代器的方法
+
+iterator（） 返回集合中的迭代器对象，改迭代器对象默认指向当前集合的第一个元素
+
+iterator迭代器中的常用方法
+
+hasNext（） 询问当前位置是否有元素存在
+
+next（） 获取当前位置的元素，并同时将迭代器对象指向下一个元素
+
+### 增强for循环
+
+既可以用来遍历数组，也可以用来遍历集合
+
+增强for循环，本质上是迭代器的简化写法
+
+格式为：
+
+for（元素的数据类型 变量名 ：数组或者集合名）{
+
+}
+
+```java
+public class iteratorDemo {
+    public static void main(String[] args) {
+        Collection<String> list=new ArrayList<String>();//多态写法，便于切换
+        list.add("王老霉");
+        list.add("王老霉");
+        list.add("加少宝");
+        list.add("雷碧");
+        list.add("可恨");
+        Iterator<String> iter = list.iterator();
+      /*  System.out.println("获取第一个元素："+iter.next());
+        System.out.println("获取第二个元素："+iter.next());
+        System.out.println("获取第三个元素："+iter.next());
+        System.out.println("获取第四个元素："+iter.next());
+        System.out.println("获取第五个元素："+iter.next());*/
+        //System.out.println("获取第六个元素："+iter.next());//会报异常，出错  NoSuchElementException
+        int i=1;
+        while(iter.hasNext()){
+            System.out.println("获取第"+i+"个元素："+iter.next());
+            i++;
+        }
+        System.out.println("======================");
+        for (String s : list) {
+            System.out.println("获取元素："+s);
+        }
+        System.out.println("======================");
+        String[] slist= {"sd","das","dasd"};
+        for (String s : slist) {
+            System.out.println("获取元素："+s);
+        }
+    }
+}
+```
+
+
+
+
+
+
+
+
+
+## 双列集合
+
+每个元素包含两个值（键值对）
