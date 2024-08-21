@@ -20,7 +20,7 @@ public class LinkedListDemo {
         stack.addLast("起飞");
         stack.addLast("小老板");
         stack.addLast("赣神魔");
-        System.out.println("先进后出!!!!!!!!!!!!!!");
+        System.out.println("先进后出!!!!!!!!!!!!!!!");
         System.out.println(stack);
         System.out.println("出："+stack.removeFirst());
         System.out.println("出："+stack.removeFirst());
