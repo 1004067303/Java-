@@ -5051,6 +5051,166 @@ public class iteratorDemo {
 }
 ```
 
+### List特有方法
+
+List继承自Collection集合，因为它在拥有Collection集合所有方法的基础上，他还有一些自己的方法，常用的有：
+
+add(int index,E element)     在此集合中的指定位置插入指定的元素
+
+remove(int index) 		删除指定索引处的元素，返回被删除的元素
+
+set(int index,E element)       修改指定索引处的元素，返回被修改的元素
+
+get(int index)  			返回指定索引处的元素
+
+```java
+
+public class ListMethods
+{
+    public static void main(String[] args) {
+
+        List<String> list=new ArrayList<>();
+        list.add("起飞");
+        list.add(0,"芜湖");
+        list.add("牛掰");
+        list.add(0,"你在赣神魔");
+        list.add("小老板");
+        list.add("有问题");
+        System.out.println(list.get(0));
+        System.out.println("======================");
+        System.out.println("被删除0号位置的元素："+list.remove(0));
+        System.out.println("被修改0号位置的元素："+list.set(0,"吴迪！！"));
+        //普通for  适用于有索引
+        for (int i = 0; i < list.size(); i++) {
+            System.out.println(list.get(i));
+        }
+        System.out.println("====================");
+        //增强for
+        for (String s : list) {
+            System.out.println(s);
+        }
+        System.out.println("====================");
+        //迭代器方法遍历
+        Iterator<String> iterator = list.iterator();
+        while (iterator.hasNext()){
+            System.out.println(iterator.next());
+        }
+        System.out.println("======================");
+        //foreach
+        list.forEach(s-> System.out.println(s));
+    }
+}
+
+```
+
+### ArrayList和LinkedList
+
+#### ArrayList
+
+是基于数组实现的，数组的特点：查询快，增删慢，这里的查询指的是查询指定某个位置的数据，根据索引进行查询，所以不论查询哪个数据，速度都是差不多的。
+
+而增删慢是因为当对数组进行增删时，可能需要对数组的数据进行移动，这就导致了它的效率比较低，而对应增加，还可能面临扩容的问题，所以增删就比较慢
+
+实际过程为：
+
+1、利用无参构造器创建的集合，会在底层创建一个默认长度为0的数组
+
+2、添加第一个元素之后，底层会创建一个新的长度为10的数组
+
+3、在存满10个之后，会对数组进行扩容，扩容到当前长度的1.5倍，即15
+
+4、如果一次添加多个元素，1.5倍还放不下，则新创建的数组长度以实际为准
+
+因为ArrayList适用的场景为：
+
+根据随机索引取数据需求或者数据量不大的情况
+
+不适用于频繁的进行增删操作的情况
+
+#### LinkedList
+
+是基于双向链表实现的，在这里需要先了解下链表
+
+![image-20240821161520243](D:\JAVA\JavaDemo\笔记图片\image-20240821161520243-1724228122637-1.png)
+
+首先了解单向链表，链表中的节点是独立的对象，在内存中是不连续的，每个节点包含数据值和下一个值的地址，这样的链表就称为单链表，其特点是：查询慢，增删相对较快。
+
+不论查询哪个位置的数据，都需要从头结点开始查找，所以查询较慢，而增删只需要更改想要插入位置前一个元素的下一个节点地址值指向他，然后插入元素的下一个节点值指向下一个地址即可，不需要大量的移动元素，因此增删比较快
+
+而双链表则是同时存有上一个节点地址和下一个节点地址，因此他查找数据时可以选择性的从头或者尾开始查找，而且对头尾元素的增删是非常快的
+
+##### LinkedList特有方法
+
+addFirst(E  e)			在该列表开头添加指定的元素
+
+addLast(E  e)			 将指定元素追加到此列表末尾
+
+getFirst()				返回此列中的第一个元素
+
+getLast()				返回此列中的最后一个元素
+
+removeFirst()			删除并返回此列的第一个元素
+
+removeLast()			删除并返回此列的最后一个元素
+
+和主要的一个使用场景：队列，先进先出 因为其需要有序，且频繁的操作首尾元素，栈也同理，但是栈是先进后出
+
+```java
+package Collections.Lists;
+
+import java.util.LinkedList;
+
+public class LinkedListDemo {
+    public static void main(String[] args) {
+        LinkedList<String> queue=new LinkedList<>();//此处不要使用多态，因为后面要使用LinkedList特有的方法
+        queue.addLast("芜湖");//尾插法  这里看个人理解 哪个数据算先进去，我是直接把插完之后的数据当成是生成的队列
+        queue.addLast("起飞");
+        queue.addLast("小老板");
+        queue.addLast("赣神魔");
+        System.out.println(queue);
+        System.out.println("先进先出!!!!!!!!!!!!!!");
+        System.out.println("出："+queue.removeLast());
+        System.out.println("出："+queue.removeLast());
+        System.out.println("出："+queue.removeLast());
+        System.out.println(queue);
+        LinkedList<String> stack=new LinkedList<>();//此处不要使用多态，因为后面要使用LinkedList特有的方法
+        stack.addLast("芜湖");//尾插法  这里看个人理解 哪个数据算先进去，我是直接把插完之后的数据当成是生成的栈
+        stack.addLast("起飞");
+        stack.addLast("小老板");
+        stack.addLast("赣神魔");
+        System.out.println("先进后出!!!!!!!!!!!!!!");
+        System.out.println(stack);
+        System.out.println("出："+stack.removeFirst());
+        System.out.println("出："+stack.removeFirst());
+        System.out.println("出："+stack.removeFirst());
+        System.out.println(stack);
+    }
+}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

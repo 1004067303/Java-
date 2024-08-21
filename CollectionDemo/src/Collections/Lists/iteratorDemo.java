@@ -35,6 +35,7 @@ public class iteratorDemo {
             System.out.println("获取元素："+s);
         }
         System.out.println("======================");
+        //增强for 以及简化（函数式接口）
         list.forEach(new Consumer<String>() {
             @Override
             public void accept(String s) {
@@ -46,6 +47,7 @@ public class iteratorDemo {
             }
         );
         list.forEach(s->System.out.println(s));
+        //
         list.forEach(System.out::println);
     }
 }
