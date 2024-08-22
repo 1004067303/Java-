@@ -5189,9 +5189,11 @@ public class LinkedListDemo {
 
 ```
 
+### Set
 
+对于Set集合，特点：无序：添加数据的顺序和获取到的数据顺序不一定一样，不重复，无索引
 
-
+Set有两个子类，一个孙子类，分别为HashSet、TreeSet，而孙子类为LinkedHashSet，是HashSet的子类
 
 
 
