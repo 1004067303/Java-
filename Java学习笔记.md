@@ -5195,6 +5195,142 @@ public class LinkedListDemo {
 
 Set有两个子类，一个孙子类，分别为HashSet、TreeSet，而孙子类为LinkedHashSet，是HashSet的子类
 
+Set集合要用到的方法，基本上都是有Collection提供的，很少有自己特有的方法
+
+```java
+
+public class SetDemos {
+    public static void main(String[] args) {
+        Set<String> hashSet=new HashSet<>();
+        hashSet.add("芜湖");
+        hashSet.add("芜湖");
+        hashSet.add("起飞！！");
+        hashSet.add("芜湖");
+        hashSet.add("小老板！");
+        hashSet.add("芜湖");
+        hashSet.add("芜湖");
+        System.out.println("HashSet："+hashSet);//[小老板！, 芜湖, 起飞！！] 可以看出是无重复，无顺序的
+
+        Set<String> linkedHashSet=new LinkedHashSet<>();
+        linkedHashSet.add("芜湖");
+        linkedHashSet.add("芜湖");
+        linkedHashSet.add("起飞！！");
+        linkedHashSet.add("芜湖");
+        linkedHashSet.add("小老板！");
+        linkedHashSet.add("芜湖");
+        linkedHashSet.add("芜湖");
+        System.out.println("linkedHashSet："+linkedHashSet);//[芜湖, 起飞！！, 小老板！] 可以看出是无重复，有序的，按照添加顺序
+
+        Set<Integer> tree=new TreeSet<>();
+        tree.add(23);
+        tree.add(2312);
+        tree.add(2);
+        tree.add(4);
+        tree.add(5);
+        tree.add(55);
+        tree.add(23);
+        System.out.println("TreeSet："+tree);//[2, 4, 5, 23, 55, 2312] 可以看出同样是无重复，但是是有序的，默认升序排序
+        Set<String> tree2=new TreeSet<>();
+        tree2.add("we");
+        tree2.add("qwe");
+        tree2.add("asd");
+        tree2.add("232");
+        tree2.add("231");
+        tree2.add("232");
+        tree2.add("232");
+        System.out.println("TreeSet："+tree2);//[231, 232, asd, qwe, we] 可以看出同样是无重复，但是是有序的，默认升序排序，非数字的话就是ascll码表排序
+
+
+    }
+}
+
+```
+
+#### HashSet底层原理
+
+了解HashSet底层原理之前，先了解什么事哈希值
+
+哈希值就是一个int类型的数值，Java中每个对象都有一个哈希值
+
+在Java中，任何对象都可以通过调用hashCode方法来获取该对象自己的哈希值
+
+int  hashCode()  ：返回对象的哈希值
+
+对象哈希值的特点
+
+同一个对象多次调用hashCode方法返回的哈希值是一样的
+
+不同的对象，他们的哈希值一般来说是不相同的，但是也有可能会相同（哈希碰撞），因为int的范围是有限的，如果有超过范围的对象，那么就会发生哈希碰撞，当然，没超过也可能会发生，详细原理不做解释，可自行去搜索
+
+```java
+public class HashDemo {
+    public static void main(String[] args) {
+        Student st1=new Student("JHA",99,99);
+        Student st2=new Student("QYM",99,99);
+        System.out.println(st1.hashCode());
+        System.out.println(st1.hashCode());
+        System.out.println(st1.hashCode());
+        System.out.println(st1.hashCode());
+        System.out.println(st2.hashCode());
+        System.out.println("=========================");
+        String s1="abc";
+        String s2="acD";
+        System.out.println(s1.hashCode());//会输出相同的哈希值
+        System.out.println(s2.hashCode());
+    }
+}
+```
+
+
+
+![image-20240823105452795](D:\JAVA\JavaDemo\笔记图片\image-20240823105452795-1724381694075-1.png)
+
+当数组长度快要占满时， 通过加载因子，16*0.75=12 当占位达到12时，就对数组进行自动扩容，一般是原长度的一倍
+
+![image-20240823105834920](D:\JAVA\JavaDemo\笔记图片\image-20240823105834920-1724381916209-3-1724381918123-5.png)
+
+对于树 这里不详细展开，数据结构的东西，暂时先不深入
+
+对于对象，如果想要去重，那么必须重写hashCode和equals方法
+
+#### LinkedhashSet底层原理
+
+![image-20240823112626513](D:\JAVA\JavaDemo\笔记图片\image-20240823112626513.png)
+
+区别于HashSet，它多了一个双链表，同时存储了一个数据的前驱和后继，简单说就是存了上一个元素的位置和下一个元素的位置，因此保证了它的有序性（添加数据的顺序），缺点在于它是通过消耗更多的内存来实现的有序。
+
+#### TreeSet底层原理
+
+底层是基于红黑树实现的排序
+
+TreeSet特点：不重复，无索引，可排序（默认升序排序，按照元素的大小，从小到大排序）
+
+需注意：
+
+对于数值类型：如Double和Integer，都是默认按照数值本身的大小进行升序排序的
+
+对于字符串类型：默认按照首字符的编号升序排序
+
+对于自定义的类型，TreeSet默认是无法进行排序的，如果需要排序，那么就要重写排序规则，方法有两种，上文说过，一个是实现Comparable接口，重写compareTo方法来指定比较规则。另一个是调用TreeSet集合有参构造器，可以设置Comparator对象（比较器对象，用于指定比较规则
+
+``public TreeSet(Comparator<? super E> comparator)``
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
