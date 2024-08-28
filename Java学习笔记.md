@@ -5107,6 +5107,8 @@ public class ListMethods
 
 #### ArrayList
 
+**一般适用于希望记住元素添加顺序，需要存储重复的元素，且需要频繁的更加索引查找数据**
+
 是基于数组实现的，数组的特点：查询快，增删慢，这里的查询指的是查询指定某个位置的数据，根据索引进行查询，所以不论查询哪个数据，速度都是差不多的。
 
 而增删慢是因为当对数组进行增删时，可能需要对数组的数据进行移动，这就导致了它的效率比较低，而对应增加，还可能面临扩容的问题，所以增删就比较慢
@@ -5128,6 +5130,8 @@ public class ListMethods
 不适用于频繁的进行增删操作的情况
 
 #### LinkedList
+
+**一般适用于希望记住元素添加顺序，需要存储重复的元素，且频繁增删头尾数据**
 
 是基于双向链表实现的，在这里需要先了解下链表
 
@@ -5248,6 +5252,8 @@ public class SetDemos {
 
 #### HashSet底层原理
 
+**一般适用于不在意元素添加顺序，无重复数据需要存储，只希望增删改查都快**
+
 了解HashSet底层原理之前，先了解什么事哈希值
 
 哈希值就是一个int类型的数值，Java中每个对象都有一个哈希值
@@ -5295,11 +5301,15 @@ public class HashDemo {
 
 #### LinkedhashSet底层原理
 
+**一般适用于希望记住元素添加数据，无重复数据，且增删改查都快**
+
 ![image-20240823112626513](D:\JAVA\JavaDemo\笔记图片\image-20240823112626513.png)
 
 区别于HashSet，它多了一个双链表，同时存储了一个数据的前驱和后继，简单说就是存了上一个元素的位置和下一个元素的位置，因此保证了它的有序性（添加数据的顺序），缺点在于它是通过消耗更多的内存来实现的有序。
 
 #### TreeSet底层原理
+
+**一般适用于需要对元素排序，且无重复数据，且希望增删改查都快**
 
 底层是基于红黑树实现的排序
 
@@ -5311,15 +5321,188 @@ TreeSet特点：不重复，无索引，可排序（默认升序排序，按照�
 
 对于字符串类型：默认按照首字符的编号升序排序
 
-对于自定义的类型，TreeSet默认是无法进行排序的，如果需要排序，那么就要重写排序规则，方法有两种，上文说过，一个是实现Comparable接口，重写compareTo方法来指定比较规则。另一个是调用TreeSet集合有参构造器，可以设置Comparator对象（比较器对象，用于指定比较规则
+对于自定义的类型，TreeSet默认是无法进行排序的，如果需要排序，那么就要重写排序规则，方法有两种，上文说过，一个是实现Comparable接口，重写compareTo方法来指定比较规则。另一个是调用TreeSet集合有参构造器，可以设置Comparator对象（比较器对象，用于指定比较规则。当两个规则同时出现时，一般采用的是第二种规则，即有参构造器声明的规则。
 
 ``public TreeSet(Comparator<? super E> comparator)``
 
+```java
 
+public class SetDemos {
+    public static void main(String[] args) {
+        Set<String> hashSet=new HashSet<>();
+        hashSet.add("芜湖");
+        hashSet.add("芜湖");
+        hashSet.add("起飞！！");
+        hashSet.add("芜湖");
+        hashSet.add("小老板！");
+        hashSet.add("芜湖");
+        hashSet.add("芜湖");
+        System.out.println("HashSet："+hashSet);//[小老板！, 芜湖, 起飞！！] 可以看出是无重复，无顺序的
 
+        Set<String> linkedHashSet=new LinkedHashSet<>();
+        linkedHashSet.add("芜湖");
+        linkedHashSet.add("芜湖");
+        linkedHashSet.add("起飞！！");
+        linkedHashSet.add("芜湖");
+        linkedHashSet.add("小老板！");
+        linkedHashSet.add("芜湖");
+        linkedHashSet.add("芜湖");
+        System.out.println("linkedHashSet："+linkedHashSet);//[芜湖, 起飞！！, 小老板！] 可以看出是无重复，有序的，按照添加顺序
 
+        Set<Integer> tree=new TreeSet<>();
+        tree.add(23);
+        tree.add(2312);
+        tree.add(2);
+        tree.add(4);
+        tree.add(5);
+        tree.add(55);
+        tree.add(23);
+        System.out.println("TreeSet："+tree);//[2, 4, 5, 23, 55, 2312] 可以看出同样是无重复，但是是有序的，默认升序排序
+        Set<String> tree2=new TreeSet<>();
+        tree2.add("we");
+        tree2.add("qwe");
+        tree2.add("asd");
+        tree2.add("232");
+        tree2.add("231");
+        tree2.add("232");
+        tree2.add("232");
+        System.out.println("TreeSet："+tree2);//[231, 232, asd, qwe, we] 可以看出同样是无重复，但是是有序的，默认升序排序，非数字的话就是ascll码表排序
 
+        Set<Person> tree3=new TreeSet<>(new Comparator<Person>() {
+            @Override
+            public int compare(Person o1, Person o2) {
+                if(o1.getHeight()>=o2.getHeight()){
+                    return 1;
+                }
+                else
+                    return -1;
+            }
+        });
 
+        tree3.add(new Person("JHA",22,189.3));
+        tree3.add(new Person("QYM",22,178.3));
+        tree3.add(new Person("CS",23,156));
+        tree3.add(new Person("NM",19,176));
+        tree3.add(new Person("WUHU",34,197));
+        System.out.println(tree3);// 排序规则会采用最近原则，即TreeSet自己的排序规则，在上面定义的，根据身高来进行排序
+    }
+    static class Person implements Comparable<Person>{
+        String name;
+        double age;
+        double height;
+
+        public Person() {
+        }
+
+        @Override
+        public String toString() {
+            return "Person{" +
+                    "name='" + name + '\'' +
+                    ", age=" + age +
+                    ", height=" + height +
+                    '}';
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public double getAge() {
+            return age;
+        }
+
+        public void setAge(double age) {
+            this.age = age;
+        }
+
+        public double getHeight() {
+            return height;
+        }
+
+        public void setHeight(double height) {
+            this.height = height;
+        }
+
+        public Person(String name, double age, double height) {
+            this.name = name;
+            this.age = age;
+            this.height = height;
+        }
+
+        @Override
+        public int compareTo(Person o) {
+            // this  o
+            //return (int)(this.getAge()-o.getAge());
+           // return  Double.compare(this.getAge(),o.getAge());//这样的话 如果年龄相同就只会输出一个，会出现数据缺失
+            if(this.getAge()>=o.getAge()){
+                return 1;
+            }
+            else
+                return -1;
+        }
+    }
+}
+
+```
+
+## 集合的并发修改异常
+
+出现并发修改异常的情景为：
+
+使用迭代器遍历集合时，又同时在删除集合中的数据，程序就会抛出并发修改异常的错误
+
+由于增强for循环遍历集合就是迭代器遍历集合的简化写法，因此，使用增强for循环遍历集合，又同时在删除集合中的数据，也会报这个错误。
+
+原因是使用迭代器遍历集合的同事，使用集合删除元素会造成元素删除缺失。
+
+**怎么保证遍历集合同时删除数据时不出bug**
+
+使用遍历器遍历集合时：使用迭代器自己的删除方法删除数据即可
+
+如果使用for循环遍历时：可以倒着遍历并删除；或者从前往后遍历，但删除元素后做i--操作，将索引减1
+
+```java
+public class CollectionExceptionDemo {
+    public static void main(String[] args) {
+        ArrayList<String> list=new ArrayList<>();
+        list.add("张三");
+        list.add("张无忌");
+        list.add("李四");
+        list.add("王二");
+        list.add("王进");
+        list.add("李天");
+        list.add("曲金");
+        System.out.println(list);
+        /*Iterator<String> it = list.iterator();
+        while(it.hasNext()){
+            String name = it.next();
+            if(name.contains("李")){
+                //list.remove(name);//会抛异常
+                it.remove();//不会抛异常，正常删除
+            }
+        }*/
+      /*  for (int i = 0; i < list.size(); i++) {
+            String name= list.get(i);
+            if(name.contains("张")){
+                list.remove(i);
+                i--;//不加就会漏删数据
+            }
+        }*/
+        //倒着删除也行
+        for (int i = list.size()-1; i >=0 ; i--) {
+            String name= list.get(i);
+            if(name.contains("曲")){
+                list.remove(i);
+            }
+        }
+        System.out.println(list);
+    }
+}
+```
 
 
 
