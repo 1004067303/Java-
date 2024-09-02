@@ -5504,17 +5504,52 @@ public class CollectionExceptionDemo {
 }
 ```
 
+## 可变参数
 
+就是一种特殊形参，定义在方法、构造器的形参列表里，格式是：数据类型...参数名称；
 
+### 可变参数的特点和好处
 
+特点：可以不传数据给他；可以传一个或者同时传多个数据给它；也可以传一个数组给它
 
+好处：可以灵活的接受数据
 
+可变参数在方法内部，本质上是一个数组
 
+### 注意事项
 
+一个形参列表中只能有一个可变参数
 
+可变参数必须放在形参列表的最后面
 
+```java
+public class ParamDemo {
+    public static void main(String[] args) {
+        test("方法1");
+        test("方法1",1,1,1,1);
+        test("方法1",new int[]{1,1,1,1,1});
+    }
+    public static void test(String msg,int...nums){
+        System.out.println("字符串为："+msg);
+        System.out.println("可变参数长度为："+nums.length);
+        System.out.println("可变参数为："+ Arrays.toString(nums));
+    }
+}
+```
 
+## Collections
 
+Collections是一个用来操作集合的工具类
+
+常用的一些静态方法
+
+addAll（Collection<? super T> c,T...elements）        为集合批量添加元素
+
+shuffle（List<?> list）						     打乱List集合中的元素顺序
+
+sort（List<T> list）							 对List集合中的元素进行升序排序
+
+sort（List<T> list, Comparator<? super T> c）	  对List集合中元素，按照比较器对象进行指定的规则进行排序
 
 
 

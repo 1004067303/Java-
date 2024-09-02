@@ -14,6 +14,15 @@ public class Student {
         Math = math;
     }
 
+    @Override
+    public String toString() {
+        return "Student{" +
+                "name='" + name + '\'' +
+                ", Chinese=" + Chinese +
+                ", Math=" + Math +
+                '}';
+    }
+
     public String getName() {
         return name;
     }
