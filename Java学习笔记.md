@@ -4925,7 +4925,7 @@ public class ExceptionTest {
 
 分为Collection（单列集合）和Map（双列集合）
 
-## 单列集合
+## 单列集合(Collection)
 
 每个元素（数据）只包含一个值
 
@@ -5551,30 +5551,214 @@ sort（List<T> list）							 对List集合中的元素进行升序排序
 
 sort（List<T> list, Comparator<? super T> c）	  对List集合中元素，按照比较器对象进行指定的规则进行排序
 
+集合案例：斗地主发牌，排序
 
+总体思路，首先创建出牌  54张 带花色，使用对象Card，想要玩牌需要进房间，所以定义一个Room类用来对牌进行操作，如洗牌，发牌，排序，一个主方法类用来启动Room类。
 
+Card类
 
+```java
+public class Card {
+    private String number;
+    private String color;
+    private Integer size;
 
+    public Card(String number, String color, Integer size) {
+        this.number = number;
+        this.color = color;
+        this.size = size;
+    }
 
+    @Override
+    public String toString() {
+        return color+number;
+    }
 
+    public String getNumber() {
+        return number;
+    }
 
+    public void setNumber(String number) {
+        this.number = number;
+    }
 
+    public String getColor() {
+        return color;
+    }
 
+    public void setColor(String color) {
+        this.color = color;
+    }
 
+    public Integer getSize() {
+        return size;
+    }
 
+    public void setSize(Integer size) {
+        this.size = size;
+    }
 
+    public Card() {
+    }
+}
+```
 
+Room类
 
+```java
+public class Room {
+    List<Card> cardsList=new ArrayList<>();
+    public Room() {
+        String[] numbers={"3","4","5","6","7","8","9","10","J","Q","K","A","2",};
+        String[] colors={"♠","♥","♦","♣"};
 
+        int size =0;
+        for (String number : numbers) {
+            for (String color : colors) {
+                cardsList.add(new Card(number,color,size));
+                size++;
+            }
+        }
+        cardsList.add(new Card("","🃏",++size));
+        cardsList.add(new Card("","👨",++size));
+        System.out.println("新牌："+cardsList);
+    }
+    public void start(){
+        Collections.shuffle(cardsList);
+        System.out.println("洗牌过后："+cardsList);
+        List<Card> PlayA=new ArrayList<>();
+        List<Card> PlayB=new ArrayList<>();
+        List<Card> PlayC=new ArrayList<>();
 
+        for (int i = 0; i < cardsList.size()-3; i++) {
+            if(i%3==0){
+                PlayA.add(cardsList.get(i));
+            }
+            else if(i%3==1){
+                PlayB.add(cardsList.get(i));
+            }
+            else{
+                PlayC.add(cardsList.get(i));
+            }
+        }
+        sort(PlayA);
+        sort(PlayB);
+        sort(PlayC);
+        System.out.println("玩家A的牌为："+PlayA);
+        System.out.println("玩家B的牌为："+PlayB);
+        System.out.println("玩家C的牌为："+PlayC);
+        List<Card> lastCard = cardsList.subList(cardsList.size() - 3, cardsList.size());
+        System.out.println("底牌为："+lastCard);
+        PlayC.addAll(lastCard);
+        sort(PlayC);
+        System.out.println("玩家C为地主，牌为："+PlayC);
+    }
+    public void sort(List<Card> list){
+        Collections.sort(list, Comparator.comparingInt(Card::getSize));
+    }
+}
+```
 
+启动类
 
+```Java
+public class GameStart {
+    public static void main(String[] args) {
+        Room room=new Room();
+        room.start();
+    }
+}
+```
 
+![image-20240903155550569](D:\JAVA\JavaDemo\笔记图片\image-20240903155550569-1725350151819-1.png)
 
+## 双列集合(Map)
 
+Map集合成为双列集合，每个元素包含两个值（键值对），格式为：{key1=value1,key2=value2...}，一次需要存取一对数据作为一个元素。
 
+上述的格式就是键值对，Map中所有的键是不允许重复的，但是值可以重复。键和值是一一对应的，每个键只能找到一个对应的值。
 
+需要存储一一对应的数据时，使用Map集合。
 
-## 双列集合
+![image-20240903160610333](D:\JAVA\JavaDemo\笔记图片\image-20240903160610333-1725350772065-3.png)
 
-每个元素包含两个值（键值对）
+### Map常用方法
+
+size（）				获取集合的大小
+
+clear（）			      清空集合
+
+isEmpty（）			 判断集合是否为空
+
+get（Object key）	       根据键获取对应值
+
+remove（Object key）	根据键删除整个元素（删除键会返回键的值）
+
+containsKey（Object key） 判断是否包含某个键，返回true或false
+
+containsValue（Object value） 	判断是否包含某个值，返回true或false
+
+keySet（）				获取Map集合的全部键
+
+Values（）			    获取Map集合的全部值
+
+putAll（）				  把其他Map集合的数据填入自己的集合，如果有键重复的情况，则更新值为最新的这个
+
+```java
+public class HashMapDemo {
+    public static void main(String[] args) {
+        //Map<String,Integer> map=new HashMap<>();//可以看出，是无序的，且不重复，重复的话就会被认为是更新，取最新的一个
+        Map<String,Integer> map=new LinkedHashMap<>();//可以看出，是有序的，且不重复，重复的话就会被认为是更新，取最新的一个
+        Map<String,Integer> map2=new LinkedHashMap<>();
+        map2.put("芜湖",411);
+        map2.put("wd",5);
+        map2.put("起飞",233);
+        map.put("芜湖",1);
+        map.put("芜湖",2);
+        map.put("芜湖",3);
+        map.put("芜湖",4);
+        map.put("芜湖",5);
+        map.put("起飞",2);
+        map.put("小老板",5);
+        map.put("测试",3);
+        map.put(null,null);
+        System.out.println(map);
+
+        System.out.println("map的大小："+map.size());
+        map.clear();//清空map
+        System.out.println("清空map");
+        System.out.println("map的大小："+map.size());
+        System.out.println("map是否为空："+map.isEmpty());
+        map.put("芜湖",5);
+        map.put("起飞",2);
+        map.put("小老板",5);
+        map.put("测试",3);
+        System.out.println("重新赋值map！");
+        System.out.println(map);
+        System.out.println("获取键芜湖的值："+map.get("芜湖"));
+        System.out.println("移除键芜湖："+map.remove("芜湖"));
+        System.out.println(map);
+        System.out.println("是否存在键小老板："+map.containsKey("小老板"));
+        System.out.println("是否存在键芜湖："+map.containsKey("芜湖"));
+        System.out.println("是否存在值5："+map.containsValue(5));
+        System.out.println("是否存在值6："+map.containsValue(6));
+        Set<String> strings = map.keySet();
+        Collection<Integer> values = map.values();
+        System.out.println("获取map的所有键，以Set集合的形式："+strings);
+        System.out.println("获取map的所有值，以Collection集合的形式："+values);
+        System.out.println("赋值前："+map);
+        map.putAll(map2);
+        System.out.println("赋值的map："+map2);
+        System.out.println("赋值后："+map);
+
+        Map<Integer,String> tree=new TreeMap<>();//可排序，无重复，无索引，通过键来进行排序的
+        tree.put(58,"A");
+        tree.put(8,"B");
+        tree.put(5,"C");
+        tree.put(58,"D");
+        tree.put(52,"E");
+        System.out.println(tree);
+    }
+}
+```
+
