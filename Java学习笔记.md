@@ -5762,3 +5762,114 @@ public class HashMapDemo {
 }
 ```
 
+### Map集合的遍历
+
+对于Map集合，有三种遍历方法，通过键进行遍历、通过键值对进行遍历，通过lambda表达式遍历
+
+而通过lambda表达式遍历底层原理实际上就是通过键值对进行的遍历，只不过更加的简洁
+
+如下：
+
+```java
+public class MapIterator {
+    public static void main(String[] args) {
+        //用于Map集合的遍历
+        Map<String,Double> map=new HashMap<>();
+        map.put("芜湖",198.0);
+        map.put("起飞",188.0);
+        map.put("芜湖",177.0);
+        map.put("小老板",168.0);
+        map.put("赣神魔",178.0);
+        System.out.println(map);
+        //通过KeySet 获取所有的键，通过键来使用增强for进行遍历
+        {
+            Set<String> keys = map.keySet();
+            System.out.println("所有的键：" + keys);
+            for (String key : keys) {
+                System.out.println(key + "值为：" + map.get(key));
+            }
+        }
+        System.out.println("=========================");
+        //通过entrySet 获取所有的entry实体，然后就可以使用增强for进行遍历
+        {
+            Set<Map.Entry<String, Double>> entry = map.entrySet();
+            System.out.println("entry的值："+entry);
+            for (Map.Entry<String, Double> e : entry) {
+                //System.out.println(e);
+                System.out.println(e.getKey() + "值为：" + e.getValue());
+            }
+        }
+        System.out.println("=========================");
+        //使用lambda表达式进行遍历Map
+        {
+           /* map.forEach(new BiConsumer<String, Double>() {
+                @Override
+                public void accept(String s, Double aDouble) {
+                    System.out.println("键为："+s+",值为："+aDouble);
+                }
+            });*/
+            map.forEach((k,v)-> System.out.println("键为："+k+",值为："+v));
+        }
+    }
+}
+```
+
+案例
+
+![image-20240904160458890](D:\JAVA\JavaDemo\笔记图片\image-20240904160458890-1725437100888-1.png)
+
+```java
+public class MapIteratorTest {
+    public static void main(String[] args) {
+        String[] View={"A","B","C","D"};// 初始化景点
+        List<String> students=new ArrayList<>();//存储学生的投票信息
+        for (int i = 0; i < 80; i++) {
+            Random r=new Random();
+            students.add(View[ r.nextInt(4)]);//随机生成80个投票信息
+        }
+        System.out.println(students);
+        Map<String,Integer> count=new HashMap<>();//使用HashMap存储统计数据
+        for (String student : students) {//逻辑判断，如果从来未统计过，则添加为1，否则+1
+            if(count.containsKey(student)){
+                count.put(student, count.get(student)+1);
+            }else{
+                count.put(student,1);
+            }
+        }
+        count.forEach((k,v)-> System.out.println("选择"+k+"景点的有："+v+"人"));//lambda表达式打印信息
+    }
+}
+
+```
+
+### HashMap的底层原理
+
+HashMap的底层原理和HashSet的底层原理是一样的，都是基于哈希表实现的
+
+实际上，原来学的Set系列集合的底层原理就是基于Map实现的，只是Set集合中的元素只要键元素，不要值数据而已。此处可以自行看源码
+
+![image-20240904162916906](D:\JAVA\JavaDemo\笔记图片\image-20240904162916906-1725438558680-3.png)
+
+哈希表在JDK8之前，是数组+链表实现的，在JDK8之后，是数组+链表+红黑树实现的
+
+HashMap集合时一种增删改查数据，性能都比较好的集合，但是它是无序，不重复，无索引支持的（有键决定特点）
+
+HashMap的键依赖hashCode方法和equals方法保证键的唯一
+
+如果键存储的是自定义类型的对象，可以通过重写hashCode和equals方法，这样可以保证多个对象内容一样时，HashCode集合就能认为是重复的
+
+```java
+public class HashSource {
+    public static void main(String[] args) {
+        Map<Student,String> map=new HashMap<>();
+        map.put(new Student("JHA",100,98),"贵州");
+        map.put(new Student("JHA",100,98),"杭州");
+        map.put(new Student("QYM",100,98),"贵州");
+        System.out.println(map);//如果没有对Student类的hashCode方法和equals方法进行重写，那么就会认为这两个数据不相等，因为二者哈希值不一样
+    }
+}
+
+```
+
+
+
