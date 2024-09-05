@@ -5858,18 +5858,164 @@ HashMap的键依赖hashCode方法和equals方法保证键的唯一
 
 如果键存储的是自定义类型的对象，可以通过重写hashCode和equals方法，这样可以保证多个对象内容一样时，HashCode集合就能认为是重复的
 
+### LinkedHashMap的底层原理
+
+底层数据结构依旧是基于哈希表实现的，只是每个键值对元素又额外多了一个双链表的机制记录元素顺序（保证元素的有序）
+
+实际上：之前的LinkedHashSet集合的底层原理就是LinkedHashMap
+
+因此LinkedHashMap是有序，不重复，无索引
+
+### TreeMap的底层原理
+
+TreeMap的底层原理和TreeSet集合是一样的，都是基于红黑树实现的排序。是可排序（按照键的大小默认升序排序，只能对键排序），不重复，无索引。
+
+对于自定义类，需要重写排序规则，有两个方法
+
+让类实现Comparable接口，重写比较规则。
+
+TreeMap集合中有一个有参构造器，支持创建Comparator比较器对象，用来指定比较规则
+
+比较器优先级大于实现Comparable接口
+
 ```java
-public class HashSource {
+public class MapSource {
     public static void main(String[] args) {
-        Map<Student,String> map=new HashMap<>();
+        //Map<Student,String> map=new HashMap<>();//无序
+        Map<Student,String> map=new LinkedHashMap<>();//有序
         map.put(new Student("JHA",100,98),"贵州");
-        map.put(new Student("JHA",100,98),"杭州");
-        map.put(new Student("QYM",100,98),"贵州");
+        map.put(new Student("JHA",23,98),"杭州");
+        map.put(new Student("QYM",41,98),"贵州");
+        map.put(new Student("qwe",53,98),"四川");
+        map.put(new Student("ret",155,98),"南京");
         System.out.println(map);//如果没有对Student类的hashCode方法和equals方法进行重写，那么就会认为这两个数据不相等，因为二者哈希值不一样
+        System.out.println("===========================");
+        //Map<Student,String> tree=new TreeMap<>();//因为会默认进行排序，如果不重写排序规则，就会报错Student cannot be cast to class java.lang.Comparable
+        Map<Student,String> tree=new TreeMap<>(Comparator.comparingDouble(Student::getChinese));
+        tree.put(new Student("JHA",100,98),"贵州");
+        tree.put(new Student("JHA",12,98),"杭州");
+        tree.put(new Student("QYM",41,98),"贵州");
+        tree.put(new Student("qwe",455,98),"四川");
+        tree.put(new Student("ret",156,98),"南京");
+        System.out.println(tree);
     }
 }
-
 ```
 
+## 集合的嵌套
+
+对于集合，我们可以进行嵌套使用，通过例子：在程序中记住省份，以及它的所有市，如：江苏省=南京市，扬州市，苏州市，无锡市，常州市这样的数据。
+
+我们可以通过Map集合嵌套List集合来实现改功能
+
+```java
+public class CollectionTest {
+    public static void main(String[] args) {
+        Map<String, ArrayList<String>> map=new HashMap<>();
+        ArrayList<String> info1=new ArrayList<>();
+        ArrayList<String> info2=new ArrayList<>();
+        ArrayList<String> info3=new ArrayList<>();
+        Collections.addAll(info1,"南京市","扬州市","苏州市","无锡市","常州市");
+        Collections.addAll(info2,"武汉市","孝感市","十堰市","宜昌市","鄂州市");
+        Collections.addAll(info3,"石家庄市","唐山市","邢台市","保定市","张家口市");
+        map.put("江苏省",info1);
+        map.put("湖北省",info2);
+        map.put("河北省",info3);
+        System.out.println(map);
+        System.out.println("湖北省的市："+map.get("湖北省"));
+    }
+}
+```
+
+# Stream
+
+Stream也叫Stream流，是JDK8开始新增的一套API（java.util.stream.*）用于操作集合或者数组的数据。
+
+Stream流大量的结合了Lambda的语法风格来编程，提供了一种更加强大，更加简单的方式来操作集合或者数组中的数据，代码更加的简洁，可读性更好（不针对新手）
 
 
+
+## 获取Stream流
+
+获取集合的Stream流可以通过Collection提供的 stream（）方法
+
+获取数组的Stream流有两种方法
+
+Arrays类提供的stream（T[]  array）方法
+
+Stream类提供的of（T... value）方法
+
+```java
+public class StreamDemo {
+    public static void main(String[] args) {
+        //Collection单列集合获取Stream流
+        {
+            //找出名字带有张，且名字是三个字的人
+            List<String> list = new ArrayList<>();
+            list.add("张三");
+            list.add("张三丰");
+            list.add("李四");
+            list.add("张无忌");
+            list.add("李秋");
+            list.add("周芷若");
+            System.out.println(list);
+            for (String s : list) {
+                if (s.startsWith("张") && s.length() == 3) {
+                    System.out.print(s + "   ");
+                }
+            }
+            System.out.println();
+            Stream<String> stream = list.stream();
+            List<String> list1 = stream.filter(s -> s.startsWith("张")).filter(s -> s.length() == 3).toList();
+            System.out.println(list1);
+        }
+        //Map双列集合获取Stream流
+        {
+            Map<String, Integer> map = new HashMap<>();
+            map.put("张三", 23);
+            map.put("张三丰", 21);
+            map.put("张无忌", 15);
+            map.put("李四", 56);
+            map.put("周芷若", 17);
+            map.put("芜湖", 23);
+            map.put("赣神魔", 43);
+            Set<Map.Entry<String, Integer>> entries = map.entrySet();
+            Stream<Map.Entry<String, Integer>> stream2 = entries.stream();
+//        List<Map.Entry<String, Integer>> eList = stream2.filter(s -> s.getKey().startsWith("张")).filter(s -> s.getKey().length() == 3).toList();
+//        System.out.println(eList);
+            stream2.filter(s -> s.getKey().startsWith("张")).forEach((s) -> {
+                System.out.println("键为：" + s.getKey() + " 值为：" + s.getValue());
+            });
+        }
+        //数组获取Stream流，两种方法
+        {
+            String[] arr = {"张三", "张三丰", "张无忌", "李四", "周芷若"};
+            System.out.println("数组：" + Arrays.toString(arr));
+            Stream<String> stream1 = Arrays.stream(arr);
+            List<String> list2 = stream1.filter(s -> s.startsWith("张")).filter(s -> s.length() == 3).toList();
+            System.out.println("Arrays方法：" + list2);
+            Stream<String> arr1 = Stream.of(arr);
+            List<String> list3 = arr1.filter(s -> s.startsWith("张")).filter(s -> s.length() == 3).toList();
+            System.out.println("of方法：" + list3);
+        }
+    }
+}
+```
+
+## Stream流常见的中间方法
+
+Stream<T> filter（Predicate<? super T> predicate）			用于对流中的数据进行过滤
+
+Stream<T> sorted（）									    对元素进行升序排序
+
+Stream<T> sorted（Comparator<? super T> comparator）	    按照指定规则排序
+
+Stream<T> limit（long maxSize）							获取前几个元素
+
+Stream<T> skip（long n）								     跳过前几个元素
+
+Stream<T> distinct（）									  去除流中重复的元素
+
+<R> Stream<R> map（Function<？ super T,?extends R> mapper）  	对元素进行加工，并返回对应的新流
+
+static <T> Stream<T> concat（Stream a,Stream b）			合并a，b两个流为一个流
