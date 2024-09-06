@@ -6019,3 +6019,231 @@ Stream<T> distinct（）									  去除流中重复的元素
 <R> Stream<R> map（Function<？ super T,?extends R> mapper）  	对元素进行加工，并返回对应的新流
 
 static <T> Stream<T> concat（Stream a,Stream b）			合并a，b两个流为一个流
+
+```java
+public class StreamMethods {
+    public static void main(String[] args) {
+        //找出语文分数大于等于60的数据，并升序，然后输出
+        List<Double> score=new ArrayList<>();
+        Collections.addAll(score,70.6,44.5,60.0,60.5,13.0,99.0,54.0);
+        score.stream().filter(s->s>=60).sorted().forEach(s-> System.out.print(s+" "));
+        List<Student> stu=new ArrayList<>();
+        stu.add(new Student("1号学生",63,78));
+        stu.add(new Student("2号学生",98,78));
+        stu.add(new Student("3号学生",69,78));
+        stu.add(new Student("4号学生",34,78));
+        stu.add(new Student("5号学生",88.0,78));
+        stu.add(new Student("5号学生",78.0,78));
+        stu.add(new Student("5号学生",78.0,78));
+        //找出语文成绩大于等于60小于等于80的学生，并降序输出
+        stu.stream().filter(s->s.getChinese()>=60&&s.getChinese()<=80)
+                .sorted(((o1, o2) -> Double.compare(o2.getChinese(),o1.getChinese())))
+                .forEach(s-> System.out.println(s));
+                //.sorted(Comparator.comparingDouble(Student::getChinese));//升序的最简写法
+        System.out.println("--------------------------------------------------");
+        //找出语文成绩最高的前三个学生，并输出
+        stu.stream().sorted(((o1, o2) -> Double.compare(o2.getChinese(), o1.getChinese())))
+                .limit(3).forEach(s-> System.out.println(s));
+        System.out.println("--------------------------------------------------");
+        //找出语文成绩倒数的两个学生，并输出
+        stu.stream().sorted(((o1, o2) -> Double.compare(o2.getChinese(), o1.getChinese())))
+                .skip(stu.size()-2).forEach(s-> System.out.println(s));
+        System.out.println("--------------------------------------------------");
+        //找出语文成绩超过70的学生叫什么名字，要求去除重复的名字在输出
+        stu.stream().filter(s->s.getChinese()>=70).map(Student::getName).distinct().forEach(System.out::println);
+        System.out.println("--------------------------------------------------");
+        //如果想要去重自定义类，则需要重写equals方法和hashCode方法
+        stu.stream().filter(s->s.getChinese()>=70).distinct().forEach(System.out::println);
+    }
+}
+```
+
+## Stream流常见的终结方法
+
+void forEach（Consumer action）				对此流运算后的元素执行遍历
+
+long count（）								  统计此流运算后的元素个数
+
+Optional<T> max（Comparator<? super T> comparator）	获取此流运算后的最大值元素
+
+Optional<T> min（Comparator<? super T> comparator）	 获取此流运算后的最小值元素
+
+收集Stream流：把Stream流操作后的结果转回到集合或者数组中去返回
+
+Stream流：方便操作集合/数组的手段
+
+集合/数组：才是开发中的目的
+
+常用方法有
+
+R collect（Collector collector） 				把流处理后的结果收集到一个指定的集合中去
+
+Object[]  toArray（）						  把流处理后的结果收集到一个数组中去
+
+Collectors工具类提供的具体的收集方法
+
+<T> Collector toList（）					把元素收集到List集合中
+
+<T> Collector toSet（）					 把元素收集到Set集合中
+
+Collector toMap（Function keyMapper，Function valueMapper）  把元素收集到Map集合中
+
+```java
+public class StreamEndMethods {
+    public static void main(String[] args) {
+        List<Student> stu=new ArrayList<>();
+        stu.add(new Student("1号学生",63,78));
+        stu.add(new Student("2号学生",98,78));
+        stu.add(new Student("3号学生",69,78));
+        stu.add(new Student("4号学生",34,78));
+        stu.add(new Student("5号学生",78.0,78));
+        stu.add(new Student("5号学生",78.0,78));
+        System.out.println(stu);
+        // 找出语文成绩80分以上的有几人
+        System.out.println("大于80分的有："+stu.stream().filter(s -> s.getChinese() >= 80).count()+"人");
+        //找出语文成绩最高的学生对象，并输出,=
+        Student max = stu.stream().max(Comparator.comparingDouble(Student::getChinese)).get();
+        System.out.println("语文成绩最高的学生："+max);
+        //找出语文成绩最低的学生对象，并输出
+        Student min = stu.stream().min(Comparator.comparingDouble(Student::getChinese)).get();
+        System.out.println("语文成绩最低的学生："+min);
+        //找出语文成绩超过70的学生对象，并放到一个新的集合中去返回
+        List<Student> list=new ArrayList<>();
+        list= stu.stream().filter(s->s.getChinese()>=70).collect(Collectors.toList());
+        System.out.println(list);
+        //找出语文成绩超过70的学生对象，并把学生对象的名字和成绩，存入到一个Map集合中返回
+        Set<Student> set = stu.stream().filter(s -> s.getChinese() >= 70).collect(Collectors.toSet());//返回成Set集合
+        System.out.println(set);
+        Map<String, Double> map = stu.stream().filter(s -> s.getChinese() >= 70).distinct()
+                .collect(Collectors.toMap(s -> s.getName(), a -> a.getChinese()));//返回成Set集合
+        System.out.println(map);
+
+        //找出语文成绩超过70的学生对象，并把学生对象的名字和成绩，存入到一个数组中返回
+        Object[] objects = stu.stream().filter(s -> s.getChinese() >= 70).toArray();
+        System.out.println(Arrays.toString( objects));
+    }
+}
+```
+
+# File、IO流
+
+对于电脑中的数据，有的数据是临时的不需要保存，如程序中定义的变量等，都是存储在内存中，随着程序的结束而释放，而对于我们想要持久化保存的数据，则存储在硬盘中。
+
+File是java.io包下的类，File类的对象，用于代表当前操作系统的文件（可以是文件、或者文件夹）
+
+File类只能对文件本身进行操作，不能读写文件里面存储的数据，想要读写，需要使用IO流
+
+IO流是用于读写数据的（可以读写文件，或者网络中的数据）
+
+## File
+
+File类，是文件和目录的抽象表示
+
+创建File类的对象
+
+public File（String pathname）				  根据文件路径创建文件对象
+
+public File（String parent，String  child）		根据父路径和子路径名字创建文件对象
+
+public File（File parent，String child）		     根据父路径对应文件对象和子路径名称创建文件对象
+
+File对象既可以代表文件、也可以代表文件夹
+
+File封装的对象仅仅是一个路径名，这个路径可以是存在，也可以是不存在的。
+
+而在这之前，我们先了解绝对路径和相对路径
+
+绝对路径：带盘符的，完整的文件路径信息
+
+相对路径：不带盘符，从当前工作区开始寻找
+
+```java
+public class FileDemo {
+    public static void main(String[] args) {
+        //System.out.println(System.getProperty("user.dir"));//获取当前程序的根目录：
+        //String path="D:\\JAVA\\JavaDemo\\FileAndIO\\src\\files\\test.txt";//绝对路径，两个反斜杠表示
+        //String path="D:/JAVA/JavaDemo/FileAndIO/src/files/test.txt";//绝对路径，一个正斜杠表示
+        //String path="FileAndIO\\src\\files\\test.txt";//相对路径，一个正斜杠表示,默认到工程下去寻找文件
+        String path="FileAndIO/src/files/test.txt";//相对路径，一个正斜杠表示，默认到工程下去寻找文件
+        File file=new File(path);
+        System.out.println("文件大小："+file.length()+"字节");
+    }
+}
+
+```
+
+### File提供的判断文件类型、获取文件信息的方法
+
+boolean exists（）					判断当前文件对象，对应的文件路径是否存在，存在返回true
+
+boolean isFile（）					 判断当前文件对象指代的是否是文件，是则返回true
+
+boolean isDirectory（）			       判断当前文件对象指代的是否是文件夹，是则返回true
+
+String getName（）				      获取文件的名称，包含后缀
+
+long length（）					      获取文件的大小，返回字节数
+
+long lastModified（）				   获取文件最后的修改时间
+
+String getPath（）					 获取创建文件对象时，使用的路径
+
+String getAbsolutePath（）			 获取绝对路径
+
+### File创建、删除文件的方法
+
+boolean createNewFile（）				创建一个新文件（文件内容为空），创建成功返回true
+
+boolean mkdir（）					       创建文件夹，只能创建一级文件夹
+
+boolean mkdirs（）					     创建文件夹，可以创建多级文件夹
+
+boolean delete（）					      删除文件，或者空文件夹，不能删除非空文件夹，删除后的文件不进回收站
+
+### File提供的遍历文件夹的方法
+
+String[]  list（）				获取当前目录下所有的一级文件名称到一个字符数组中去
+
+File[]  listFiles（）			    获取当前目录下所有的一级文件对象到一个文件对象数组中
+
+注意事项：
+
+当主调是文件，或者路径不存在时，返回null。
+
+当主调是空文件夹时，返回一个长度为0的数组。
+
+当主调是一个有内容的文件夹时，将里面所有的一级文件和文件夹的路径放在File数组中返回。
+
+当主调是一个文件夹，且里面有隐藏文件时，将里面所有的文件和文件夹的路径放在File数组中返回，包含隐藏文件。
+
+当主调是一个文件夹，但是没有权限访问该文件夹时，返回null
+
+主调就是File对象，如  File file=new File（“地址”） file.list()   file就是所说的主调
+
+
+
+```java
+public class FileCreatDemo {
+    public static void main(String[] args) throws IOException {
+        String createPath="FileAndIo/src/files/creat.txt";
+        String DirPath="FileAndIo/src/files/test";//一级文件夹，就是一个文件夹一次创建
+        String DirPaths="FileAndIo/src/files/test/bb/vv";//多级文件夹，多级创建文件夹，多个文件夹
+        File file=new File(createPath);
+        if(!file.exists()){
+            System.out.println("创建文件："+file.createNewFile());
+        }
+        File file1=new File(DirPath);
+        if(!file1.isDirectory()){
+            System.out.println("创建一级文件夹："+file1.mkdirs());
+        }
+        File file2=new File(DirPaths);
+        if(!file2.isDirectory()){
+            System.out.println("创建多级文件夹："+file2.mkdirs());
+        }
+        System.out.println("删除文件："+file.delete());
+        System.out.println("删除一级文件夹："+file1.delete());//无法删除，因为改文件夹里面有文件或文件夹，需要递归删除里面的内容
+        System.out.println("删除多级文件夹"+file2.delete());//只会删掉一个文件夹
+    }
+}
+```
+
