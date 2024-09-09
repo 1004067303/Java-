@@ -6247,3 +6247,185 @@ public class FileCreatDemo {
 }
 ```
 
+### 方法递归
+
+想要实现
+
+递归是一种算法，在开发中广泛引用
+
+从形式上来看：方法调用自身的形式称为方法递归（recursion）
+
+递归的形式又两种：直接递归和间接递归
+
+直接递归：方法自己调用自己
+
+简介递归：方法调用其他方法，其他方法又回调方法自己
+
+使用递归时需要控制好终止条件，否则会造成死循环，导致栈内存溢出报错
+
+例子：猴子第一天摘下若干个桃子，当即吃了一半，还不过瘾，又多吃了一个，第二天早上又将剩下的桃子吃掉一半，又多吃了一个。以后每天早上都吃前一天剩下的一半零一个。到第10天早上想再吃时，见只剩下一个桃子了。求第一天共摘多少个桃子？
+
+```java
+public class recursionDemo {
+    public static void main(String[] args) throws Exception {
+        System.out.println(fun1(5));
+        System.out.println(fun2(100));
+        System.out.println(fun3(9));
+    }
+    //计算n的阶乘 即6的阶乘为 6*5*4*3*2*1
+    public static int fun1(int n) throws Exception {
+        if(n>0) {
+            if (n == 1) {
+                return n;
+            } else
+                return n * fun1(n - 1);
+        }else {
+            throw  new Exception("输入参数不正确");
+        }
+    }
+    //求1-n的和 即 1-5的和为：1+2+3+4+5
+    public static int fun2(int n) throws Exception {
+        if(n>0) {
+            if (n == 1) {
+                return 1;
+            } else
+                return n + fun2(n - 1);
+        }else
+            throw new Exception("输入参数不正确");
+    }
+    /*
+    s10---1   s9/2-1=1--->S9=4
+    s9   4    s8/2-1=4--->S8=10  以此类推
+    s8   10   Sn/2-1=Sn+1  变式等于Sn=2Sn+1 +2   Sn+1 是n+1
+    s7
+    s6
+    s5
+    s4
+    s3
+    s2 (n/2-1)/2 -1
+    s1 n/2 -1
+    n
+    */
+    //猴吃桃问题解决
+    static int fun3(int  n){
+        if(n==10){
+            return 1;
+        }
+        else {
+            return 2*fun3(n+1)+2;
+        }
+    }
+}
+```
+
+#### 啤酒问题
+
+例子：一瓶啤酒2元，四个盖子换一瓶，两个空瓶换一瓶，10元能换多少瓶
+
+```java
+public class pijiuDemo {
+
+    public static Integer totalNumber=0;//买了多少瓶
+    public static Integer totalBottles=0;//剩余瓶子
+    public static Integer totalCovers=0;//剩余瓶盖
+    //啤酒问题，一瓶啤酒2元，四个盖子换一瓶，两个空瓶换一瓶，10元能换多少瓶
+    public static void main(String[] args) {
+        buy(10);
+        System.out.println("买了："+totalNumber+"瓶");
+        System.out.println("剩余酒瓶："+totalBottles);
+        System.out.println("剩余瓶盖："+totalCovers);
+    }
+
+    /**
+     * 思路：重复买酒，先把所有的钱买酒，然后用瓶盖，瓶子换钱，再次买酒，形成递归
+     * @param money
+     */
+    public static void buy(int money){
+        int buyNumber=money/2;//获取买的啤酒数量
+        totalNumber+=buyNumber;
+
+        int allBottleNumber=buyNumber+totalBottles;//所有瓶子数
+        int allCoverNumber=buyNumber+totalCovers;//所有瓶盖数
+        int allMoney=0;
+        if(allBottleNumber>=2) {
+            allMoney += (allBottleNumber / 2)*2;
+        }
+        totalBottles=allBottleNumber%2;
+        if(allCoverNumber>=4) {
+            allMoney += (allCoverNumber / 4)*2;
+        }
+        totalCovers=allCoverNumber%4;
+        if(allMoney>=2){
+            buy(allMoney);
+        }
+
+    }
+}
+```
+
+### 文件搜索以及文件删除（文件夹下存在文件）
+
+```java
+public class FileIterator {
+    public static void main(String[] args) {
+        File file=new File("FileAndIO/src/files/测试文件夹");
+        String[] list = file.list();
+        File[] files = file.listFiles();
+        for (File file1 : files) {
+            String name = file1.getName();
+            if(name.equals("芜湖.txt")){
+                file1.renameTo(new File("FileAndIO/src/files/测试文件夹","起飞.txt"));
+            }
+            System.out.println(name);
+        }
+        deleteDic(new File("D:\\JAVA\\JavaDemo\\FileAndIO\\src\\files\\测试文件夹\\新建文件夹"));
+        getPath(new File("D:/"), "QQ.exe");
+
+    }
+    public static void getPath(File file,String fileName){
+
+        if(!file.exists()||file.isFile()||file==null)
+        {
+            return ;
+        }
+        File[] fileList = file.listFiles();
+        if(fileList!=null && fileList.length>0) {
+            for (File f : fileList) {
+                if (f.isFile()) {
+                    if (f.getName().equals(fileName))
+                    {
+                        System.out.println(f.getAbsolutePath());
+                        return;
+                    }
+                }
+                else {
+                    getPath(f,fileName);
+                }
+            }
+        }
+
+    }
+
+    public static boolean deleteDic(File dic){
+
+        if(!dic.exists()||dic==null){
+            return false;
+        }
+        if(dic.isDirectory()&&dic.list().length>0)//是文件夹且里面有文件
+        {
+            for (File file : dic.listFiles()) {
+                if (file.isDirectory()&&file.list().length>0){
+                    deleteDic(file);
+                }
+                return file.delete();
+            }
+        }else {
+            return  dic.delete();
+        }
+        return dic.delete();
+    }
+}
+```
+
+
+
