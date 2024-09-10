@@ -6427,5 +6427,230 @@ public class FileIterator {
 }
 ```
 
+## 字符集
 
+在计算机中，字符是各种文字和符号的总称，包含了各个国家文字，符号，标点等。
+
+字符集就是多个字符的集合，字符集种类非常的多，其中最基础的就是Ascii
+
+Ascii字符集：将所有的英文字母大小写，数字，以及标点符号排列到一起  总共128个字符，对每个字符进行编码，编码成二进制形式。使用一个字节存储字符，首位是0。对于英语来说，完全足够，但是对于中文就不支持了，于是，新的字符集就出现了，GBK（国标）
+
+GBK字符集：汉字编码字符集，包含2万多个汉字等字符，GBK中一个中文字符编码成两个字节的形式进行存储。且兼容了ASCII字符集
+
+GBK编码的首位必须是1，这样就能够和ASCII进行区分，编码解码
+
+从上面两种编码可以看出，不同国家使用不同编码，不适合于团队开发和其他国家的人的使用，于是统一字符集就应运而生了，
+
+Unicode字符集（统一码，也称万国码）：
+
+Unicode是国际组织制定的，可以容纳世界上所有的文字、符号的字符集
+
+UTF-32：使用四个字节来存储一个符号，非常的奢侈，因此最开始的这个标准，较少被使用，因为其占用资源太大，且通讯效率低
+
+因此，又制定了新的字符集标准UTF-8
+
+**UTF-8：**是Unicode字符集的一种编码方案，采取可变长编码方案，分四个长度区：1个字节、2个字节、3个字节、4个字节
+
+英文符号、数字等只占1个字节（兼容ASCII编码），汉字字符占3个字节。
+
+| UTF-8编码方式（二进制）                                      |
+| ------------------------------------------------------------ |
+| 0xxxxxxx                                                                                                        (ASCII码) 1个字节 |
+| 110xxxxx   10xxxxxx                                                                                     2个字节 |
+| 1110xxxx   10xxxxxx   10xxxxxx                                                                 3个字节 |
+| 11110xxx   10xxxxxx   10xxxxxx   10xxxxxx                                             4个字节 |
+
+**推荐使用UTF-8开发时**
+
+字符编码解码时，注意使用同一字符集，否则可能会出现乱码的情况
+
+### Java代码对字符的编码方法
+
+String提供了如下方法：
+
+byte[]  getBytes（）			使用平台的默认字符集将该String编码为一系列字节，将结果存储到新的字符数组中
+
+byte[]  getBytes（String charsetName）	使用指定的字符集将该String编码成一系列字节，将结果存储到新的字符数组中
+
+### Java代码对字符的解码方法
+
+String提供了如下方法：
+
+String（byte[]  bytes）				通过平台的默认字符集解码指定的字节数组来构造新的String
+
+String（byte[]  bytes，String chatsetName） 	通过指定的字符集解码指定的字节数组来构造新的String
+
+```java
+public class UTF8Demo {
+    public static void main(String[] args) throws UnsupportedEncodingException {
+        String msg="1a中@";
+        byte[] bytes = msg.getBytes();
+        byte[] bytes2 = msg.getBytes("GBK");//需要处理异常
+        System.out.println("系统默认字符集编码："+Arrays.toString(bytes));
+        System.out.println("GBK字符集编码："+Arrays.toString(bytes2));
+
+        System.out.println("系统默认字符集解码："+ new String(bytes));
+        System.out.println("GBK字符集解码UTF-8："+ new String(bytes,"GBK"));
+        System.out.println("GBK字符集解码GBK："+ new String(bytes2,"GBK"));
+    }
+}
+```
+
+## IO
+
+IO流，称为输入输出流，I是输入流，负责将数据输入到内存中，O是输出流，负责将数据从内存中输出
+
+字节流适合操作所有类型的文件，而字符流只适合操作纯文本文件，如txt等
+
+![image-20240910152610534](D:\JAVA\JavaDemo\笔记图片\image-20240910152610534-1725953173038-1.png)
+
+### 字节流
+
+字节流分为字节输入流InputStream 和字节输出流OutputStream
+
+#### FileInputStream
+
+FileInputStream（文件字节输入流）是InputStream的实现类
+
+作用是：以内存为基准，可以把磁盘文件中的数据以字节的形式读入到内存中
+
+构造器：
+
+FileInputStream（File file）				创建字节输入流管道与源文件接通
+
+FileInputStream（String pathname）	       创建字节输入流管道与源文件接通
+
+常用方法：
+int read（）							    每次读取一个字节返回，如果发现没有数据可读返回-1
+
+int read（byte[] buffer）				      每次用一个字节数组去读取数据，返回字节数组读取了多少个字节，如果没有数据可读返回-1
+
+但是使用字节流读取文件，如果有中文字符，可能会存在乱码问题，如果想要解决，只能一次性读取所有的字节，但是这样也会存在着大小限制问题，所以一般使用字符流来读取中文字符的文件。字节流一般用来操作图片视频等。
+
+```java
+public class FileInputStreamDemo {
+    public static void main(String[] args) throws IOException {
+        InputStream input=new FileInputStream("FileAndIO/src/IO/ByteStream/file.txt");
+        System.out.println((char) input.read());//读取中文会出现乱码，无法避免 且每次读取一个字节，性能较差
+        int b;
+        while ((b=input.read())!=-1){//注意，上面已经用流读了一个字节了
+            System.out.print((char) b);
+        }
+        input.close();//流使用完之后必须要关闭回收，释放内存
+        System.out.println("===============================================================");
+        InputStream input2=new FileInputStream("FileAndIO/src/IO/ByteStream/file.txt");
+        int len=0;
+        byte[] buffer=new byte[3];//每次读3个字节，正常开发应该要1024以上
+        while ((len=input2.read(buffer))!=-1){//也不能解决中文乱码问题
+            //System.out.print(new String(buffer));
+            System.out.print(new String(buffer,0,len));//实例化读到的长度 避免倒出错误的值
+        }
+        input2.close();
+        System.out.println("==============================================================");
+        InputStream input3=new FileInputStream("FileAndIO/src/IO/ByteStream/file.txt");
+        //不使用接口，自己实现全部读取
+        {
+            /*File file = new File("FileAndIO/src/IO/ByteStream/file.txt");
+            byte[] by = new byte[(int) file.length()];
+            input3.read(by);
+            System.out.println(new String(by));*/
+        }
+        byte[] bytes = input3.readAllBytes();//FileInputStream自带API
+        System.out.println(new String(bytes));
+        input3.close();
+    }
+}
+```
+
+#### FileOutputStream
+
+FileOutputStream（文件字节输出流）是OutputStream的实现类
+
+作用是：以内存为基准，把内存中的数据以字节的形式写出到文件去
+
+构造器：
+
+FileOutputStream（File file）					  创建字节输出流管道与文件对象接通
+
+FileOutputStream（String pathname）			 创建字节输出流管道与文件对象接通
+
+FileOutputStream（File file，boolean append）	 创建字节输出流管道与文件对象接通，可追加数据
+
+FileOutputStream（String pathname，boolean append）	 创建字节输出流管道与文件对象接通，可追加数据
+
+常用方法：
+
+write（int a）						写一个字节出去
+
+write（byte[] buffer）				写一个字节数组出去
+
+write（byte[] buffer,int pos,int len）	写一个字节数组的一部分出去
+
+close（） throw IOException			关闭流
+
+```java
+public class FileOutputStreamDemo {
+    public static void main(String[] args) throws IOException {
+        //OutputStream out=new FileOutputStream("FileAndIO/src/IO/ByteStream/out.txt");
+        OutputStream out=new FileOutputStream("FileAndIO/src/IO/ByteStream/out.txt",true);//追加模式
+        out.write(97);
+        out.write('b');
+        //out.write('中');//会乱码，因为中文是三个字节，而这个只是一个字节
+        byte[] buffer = "我爱中国asdw1".getBytes();
+        out.write(buffer);
+        out.write(buffer,0,13);
+        out.write("\r\n".getBytes());//使用\r\n是为了兼容多个平台
+        out.close();
+    }
+}
+
+```
+
+文件复制
+
+```java
+public class CopyFile {
+    public static void main(String[] args) {
+        String SourcePath="FileAndIO/src/IO/ByteStream/out.txt";
+        String ToPath="FileAndIO/src/IO/ByteStream/out11.txt";
+        System.out.println("复制状态："+Copy(SourcePath, ToPath));
+    }
+    /**
+     * 复制文件，适用于一切文件，但是目标文件夹必须存在
+     * @param SourcePath
+     * @param ToPath
+     * @return
+     */
+    public static boolean Copy(String SourcePath,String ToPath){
+        Boolean flag=false;
+        InputStream in=null;
+        OutputStream out=null;
+        try {
+             in=new FileInputStream(SourcePath);
+             out=new FileOutputStream(ToPath);
+            byte[] buffer=new byte[1024*8];
+            int len=0;
+            while((len=in.read(buffer))>0){
+                out.write(buffer,0,len);
+            }
+            flag=true;
+
+        } catch (IOException e) {
+            System.out.println("打开字节流异常");
+        }
+        finally {
+            try {
+                if(in!=null)
+                in.close();
+                if(out!=null)
+                out.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return flag;
+    }
+}
+
+```
 
