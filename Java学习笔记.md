@@ -4917,6 +4917,73 @@ public class ExceptionTest {
 }
 ```
 
+## 异常处理
+
+### try-catch-finally
+
+格式为：
+
+try{
+
+} catch（异常类名 变量名）{
+
+异常处理代码
+
+}finally{
+
+}
+
+其中finally代码区里面的代码，无论是否出现了异常，都会执行，除非JVM（System.exit(0)）终止，且在return之前就会执行
+
+注意，不要在finally中返回数据
+
+一般用于程序执行完毕之后的资源的释放操作
+
+### try-with-resource
+
+在JDK7之后开始提供了更简单的资源释放方案，try-with-source
+
+格式为：
+
+try（定义资源1;定义资源2；...）{
+
+可能出现异常的代码
+
+}catch(异常类名 变量名){
+
+异常处理代码
+
+}
+
+对于资源的认定：只要是实现了AutoCloseable接口，那么就默认它是资源，使用完毕之后就会自动关闭
+
+例子：定义一个自己的资源，然后触发异常，看是否会自动关闭
+
+```java
+public class MySource implements AutoCloseable{
+    @Override
+    public void close() throws Exception {
+        System.out.println("关闭了我自己的资源");
+    }
+}
+```
+
+```java
+public class ResourceDemo {
+    public static void main(String[] args) {
+        try(MySource source=new MySource()){
+            System.out.println(10/0);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+}
+```
+
+对于这个方法 在后面IO流处可以使用
+
+
+
 # 集合
 
 集合是一种容器，用来装数据的，类似于数组，但是集合的大小可变，在开发者比较实用
@@ -6611,46 +6678,60 @@ public class FileOutputStreamDemo {
 ```java
 public class CopyFile {
     public static void main(String[] args) {
-        String SourcePath="FileAndIO/src/IO/ByteStream/out.txt";
-        String ToPath="FileAndIO/src/IO/ByteStream/out11.txt";
-        System.out.println("复制状态："+Copy(SourcePath, ToPath));
+        String SourcePath = "FileAndIO/src/IO/ByteStream/out.txt";
+        String ToPath = "FileAndIO/src/IO/ByteStream/out11.txt";
+        System.out.println("复制状态：" + Copy(SourcePath, ToPath));
     }
+
     /**
      * 复制文件，适用于一切文件，但是目标文件夹必须存在
+     *
      * @param SourcePath
      * @param ToPath
      * @return
      */
-    public static boolean Copy(String SourcePath,String ToPath){
-        Boolean flag=false;
-        InputStream in=null;
-        OutputStream out=null;
-        try {
-             in=new FileInputStream(SourcePath);
-             out=new FileOutputStream(ToPath);
-            byte[] buffer=new byte[1024*8];
-            int len=0;
-            while((len=in.read(buffer))>0){
-                out.write(buffer,0,len);
-            }
-            flag=true;
+    public static boolean Copy(String SourcePath, String ToPath) {
+        Boolean flag = false;
+        // InputStream in=null;
+        //OutputStream out=null;
+        {
+          /*  try {
+                in = new FileInputStream(SourcePath);
+                out = new FileOutputStream(ToPath);
+                byte[] buffer = new byte[1024 * 8];
+                int len = 0;
+                while ((len = in.read(buffer)) > 0) {
+                    out.write(buffer, 0, len);
+                }
+                flag = true;
 
-        } catch (IOException e) {
-            System.out.println("打开字节流异常");
-        }
-        finally {
-            try {
-                if(in!=null)
-                in.close();
-                if(out!=null)
-                out.close();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                System.out.println("打开字节流异常");
+            } finally {
+                try {
+                    if (in != null)
+                        in.close();
+                    if (out != null)
+                        out.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }*/
+        }
+        //使用try-with-source
+        try (InputStream in = new FileInputStream(SourcePath);
+             OutputStream out = new FileOutputStream(ToPath);) {
+            byte[] buffer = new byte[1024 * 8];
+            int len = 0;
+            while ((len = in.read(buffer)) > 0) {
+                out.write(buffer, 0, len);
             }
+            flag = true;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         return flag;
     }
 }
-
 ```
 
