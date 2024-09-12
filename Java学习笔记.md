@@ -6569,7 +6569,7 @@ IO流，称为输入输出流，I是输入流，负责将数据输入到内存�
 
 字节流适合操作所有类型的文件，而字符流只适合操作纯文本文件，如txt等
 
-![image-20240910152610534](D:\JAVA\JavaDemo\笔记图片\image-20240910152610534-1725953173038-1.png)
+![image-20240912164402352](D:\JAVA\JavaDemo\笔记图片\image-20240912164402352-1726130643786-1.png)
 
 ### 字节流
 
@@ -6734,4 +6734,166 @@ public class CopyFile {
     }
 }
 ```
+
+### 字符流
+
+字符流分为FileReader（文件字符输入流）和FileWrite（文件字符输出流），适用于对字符进行操作
+
+#### FileReader
+
+FileReader（文件字符输入流）是Reader的实现类
+
+作用是：以内存为基准，可以把文件中的数据以字符的形式读入到内存中去
+
+构造器：
+
+FileReader（File file）				  创建字符输入流管道与源文件接通
+
+FileReader（String pathname）		创建字符输入流管道与源文件接通
+
+常用方法：
+
+int  read（）						每次读取一个字符返回，如果没有数据可读返回-1
+
+int  read（char[] buffer）			 每次用一个字符数组去读取数据，返回字符数组读取了多少个字符，如果没有数据可读返回-1
+
+```java
+public class FileReaderDemo {
+    public static void main(String[] args) {
+        try(Reader reader=new FileReader("FileAndIO/src/IO/ByteStream/file.txt");) {
+            //每次读取一个字符,这样子性能会很差，有多少个字符就要调用多少次
+            /*int num=0;
+            while ((num= reader.read())>0){
+                System.out.print((char) num);
+            }*/
+            //一次读取多个字符
+            int len;
+            char[] buffer=new char[1024*8];
+            while ((len= reader.read(buffer))>0){
+                //System.out.println(new String(buffer));//这么输出会有很多null值
+                System.out.println(new String(buffer,0,len));//读取到了多少就输出多少，这样能保证不会多出空值或者其他值
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+
+#### FileWriter
+
+FileWriter（文件字符输出流）是Write的实现类
+
+作用是：以内存为基准，把内存中的数据以字符的形式写出到文件中去
+
+构造器：
+
+FileWriter（File file）						创建输出流管道与源文件对象接通
+
+FileWriter（String  pathname）		              创建输出流管道与源文件对象接通
+
+FileWriter（File file,boolean append）		  创建输出流管道与源文件对象接通，可追加数据
+
+FileWriter（String  pathname,boolean append）创建输出流管道与源文件对象接通，可追加数据
+
+常用方法：
+
+write（int c）								  写一个字符
+
+write（String str）							 写一个字符串
+
+write（String str，int off，int len）			   写一个字符串的一部分
+
+write（char[]  cbuf）						     写一个字符数组
+
+write（char[] cbuf，int off，int len）			写入字符数组的一部分
+
+**注意，如果没有刷新或者关闭流 ，那么数据写入不进去**，因为为了解决字节流对于每次写调用一次资源的问题，引用了缓冲区这个东西，先将写入内容写到缓冲区中，然后在流关闭或者调用刷新方法，或者缓冲区满的时候再对文件进行写入，这是一种延迟写操作
+
+```java
+public class FileWriteDemo {
+    public static void main(String[] args) throws IOException {
+        //Writer write=new FileWriter("FileAndIO/src/IO/ByteStream/fileWrite.txt");
+        Writer write = new FileWriter("FileAndIO/src/IO/ByteStream/fileWrite.txt", true);//追加模式
+        write.write(97);
+        write.write("97");
+        write.write(new char[]{'1', '中', '文'});
+        write.write(new char[]{'1', '中', '文'}, 1, 2);
+        write.write("\r\n");
+        write.flush();//调用之后文件才会有数据，不然数据还在缓冲区
+        write.close();//调用之后也会有数据，因为关闭之前会自动调用flush方法
+    }
+}
+
+```
+
+### 字节缓冲流
+
+字节缓冲流分为字节缓冲输入流（BufferedInputStream）和字节换成输出流（BufferedOutputStream）
+
+#### BufferedInputStream和BufferedOutputStream
+
+原理：字节缓冲输入流自带了8KB缓冲池，字节缓冲输出流也自带8KB缓冲池
+
+构造器：
+
+BufferedInputStream（InputStream is） 		把低级的字节输入流包装成一个高级的缓冲字节输入流，从而提供读数据的性能
+
+BufferedOutputStream（OutputStream os）	 把低级的字节输出流包装成一个高级的缓冲字节输出流，从而提供写数据的性能
+
+```java
+public class BufferedByteStreamDemo {
+    public static void main(String[] args) throws IOException {
+        String SourcePath = "FileAndIO/src/IO/ByteStream/out.txt";
+        String ToPath = "FileAndIO/src/IO/ByteStream/out11.txt";
+        System.out.println("复制状态：" + Copy(SourcePath, ToPath));
+    }
+    public static boolean Copy(String SourcePath, String ToPath) {
+        Boolean flag = false;
+
+        try (InputStream in = new FileInputStream(SourcePath);
+             InputStream bin=new BufferedInputStream(in);
+             OutputStream out = new FileOutputStream(ToPath);
+             OutputStream bout=new BufferedOutputStream(out)) {
+            byte[] buffer = new byte[1024 * 8];
+            int len = 0;
+            while ((len = bin.read(buffer)) > 0) {
+                bout.write(buffer, 0, len);
+            }
+            flag = true;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return flag;
+    }
+}
+```
+
+### 字符缓冲流
+
+字符缓冲流分为字符缓冲输入流（BufferedReader）和字符缓冲输出流（BufferedWriter）
+
+#### BufferedReader
+
+作用：自带8K的字符缓冲池，可以提高字符输入流读取字符数据的性能
+
+构造器：
+
+BufferedReader（Reader r） 			把低级的字符输入流包装成缓冲输入流管道，从而提高字符输入流读字符数据的性能
+
+新增方法：
+
+String  readLine（）					读取一行数据返回，如果没有数据可读，返回null
+
+#### BufferedWriter
+
+作用：自带8K的字符缓冲池，可以提高字符输出流写字符数据的性能
+
+构造器：
+
+BufferedWriter（Writer w）			 把低级的字符输出流包装成缓冲输出流管道，从而提高字符输出流写字符数据的性能
+
+新增方法：
+
+newLine（）							换行
 
