@@ -65,6 +65,7 @@ public class ChangeStreamDemo {
              BufferedReader bin=new BufferedReader(sin);
              //OutputStream out = new FileOutputStream(ToPath,true);//如果需要追加模式，就在最前面的字节流处添加说明即可
              OutputStream out = new FileOutputStream(ToPath);
+             //Writer sout=new OutputStreamWriter(out,"GBK");//如果想要指定写某种编码，就添加说明
              Writer sout=new OutputStreamWriter(out);
              BufferedWriter bout=new BufferedWriter(sout)
              ) {
