@@ -8,6 +8,10 @@ import java.io.Reader;
 public class BufferedReaderDemo {
     public static void main(String[] args) throws IOException {
         Reader reader=new FileReader("FileAndIO/src/IO/ByteStream/file.txt");
-        Reader breader=new BufferedReader(reader);
+        BufferedReader breader=new BufferedReader(reader);
+        String msg;
+        while ((msg=breader.readLine())!=null){
+            System.out.println(msg);
+        }
     }
 }

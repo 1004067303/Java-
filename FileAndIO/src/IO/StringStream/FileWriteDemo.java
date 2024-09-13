@@ -13,6 +13,7 @@ public class FileWriteDemo {
         write.write(new char[]{'1', '中', '文'});
         write.write(new char[]{'1', '中', '文'}, 1, 2);
         write.write("\r\n");
+
         write.flush();//调用之后文件才会有数据，不然数据还在缓冲区
         write.close();//调用之后也会有数据，因为关闭之前会自动调用flush方法
     }

@@ -6885,6 +6885,19 @@ BufferedReader（Reader r） 			把低级的字符输入流包装成缓冲输入
 
 String  readLine（）					读取一行数据返回，如果没有数据可读，返回null
 
+```java
+public class BufferedReaderDemo {
+    public static void main(String[] args) throws IOException {
+        Reader reader=new FileReader("FileAndIO/src/IO/ByteStream/file.txt");
+        BufferedReader breader=new BufferedReader(reader);
+        String msg;
+        while ((msg=breader.readLine())!=null){
+            System.out.println(msg);
+        }
+    }
+}
+```
+
 #### BufferedWriter
 
 作用：自带8K的字符缓冲池，可以提高字符输出流写字符数据的性能
@@ -6896,4 +6909,156 @@ BufferedWriter（Writer w）			 把低级的字符输出流包装成缓冲输出
 新增方法：
 
 newLine（）							换行
+
+```java
+public class BufferedWriterDemo {
+    public static void main(String[] args) throws IOException {
+        Writer write = new FileWriter("FileAndIO/src/IO/ByteStream/fileWrite.txt", true);//追加模式
+        BufferedWriter bw=new BufferedWriter(write);
+        bw.write(97);
+        bw.write("97");
+        bw.write(new char[]{'1', '中', '文'});
+        bw.write(new char[]{'1', '中', '文'}, 1, 2);
+        bw.newLine();
+        bw.flush();
+    }
+}
+```
+
+对缓冲流和原始流性能分析,通过复制大文件来分析
+
+```java
+public class BufferedCopyDemo {
+    public static void main(String[] args) {
+        //Copy1("D:/meeting_01.mp4","D:/会议/copy1.mp4");
+        Copy2("D:/meeting_01.mp4","D:/会议/copy2.mp4");
+        Copy3("D:/meeting_01.mp4","D:/会议/copy3.mp4");
+        Copy4("D:/meeting_01.mp4","D:/会议/copy4.mp4");
+    }
+
+    /**
+     * 原始流复制文件，一个字节一个字节的复制,要等待非常久，不建议
+     * @param SourcePath
+     * @param ToPath
+     * @return
+     */
+    public static boolean Copy1(String SourcePath, String ToPath) {
+        long startTime=System.currentTimeMillis();
+        Boolean flag = false;
+        try (InputStream in = new FileInputStream(SourcePath);
+             OutputStream out = new FileOutputStream(ToPath);) {
+            int len = 0;
+            while ((len =in.read()) != -1) {
+                out.write(len);
+            }
+            flag = true;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        long endTime=System.currentTimeMillis();
+        System.out.println("原始流复制文件，一个字节一个字节的复制耗时:"+(endTime - startTime) +"ms");
+        return flag;
+    }
+
+    /**
+     * 原始流一次读取1K
+     * @param SourcePath
+     * @param ToPath
+     * @return
+     */
+    public static boolean Copy2(String SourcePath, String ToPath) {
+        long startTime=System.currentTimeMillis();
+        Boolean flag = false;
+        try (InputStream in = new FileInputStream(SourcePath);
+             OutputStream out = new FileOutputStream(ToPath);) {
+            int len = 0;
+            byte[] buffer=new byte[1024];
+            while ((len =in.read(buffer)) > 0) {
+                out.write(buffer,0,len);
+            }
+            flag = true;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        long endTime=System.currentTimeMillis();
+        System.out.println("原始流复制文件，一次读取1K的复制耗时:"+(endTime - startTime) +"ms");
+        return flag;
+    }
+
+    /**
+     * 缓冲流一次读取一个字节
+     * @param SourcePath
+     * @param ToPath
+     * @return
+     */
+    public static boolean Copy3(String SourcePath, String ToPath) {
+        long startTime=System.currentTimeMillis();
+        Boolean flag = false;
+        try (InputStream in = new FileInputStream(SourcePath);
+             OutputStream out = new FileOutputStream(ToPath);
+             BufferedInputStream bin=new BufferedInputStream(in);
+            /* BufferedInputStream bin=new BufferedInputStream(in,1024*8);
+             BufferedOutputStream bout=new BufferedOutputStream(out,1024*8)*///可以自定义缓冲区大小，大一点好，但是太大了也没用，存在性能上限，一般32K就很大了
+             BufferedOutputStream bout=new BufferedOutputStream(out)
+             ) {
+            int len = 0;
+            while ((len =bin.read()) != -1) {
+                bout.write(len);
+            }
+            flag = true;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        long endTime=System.currentTimeMillis();
+        System.out.println("缓冲流一次读取一个字节的复制耗时:"+(endTime - startTime) +"ms");
+        return flag;
+    }
+
+    /**
+     * 缓冲流一次读取1K
+     * @param SourcePath
+     * @param ToPath
+     * @return
+     */
+    public static boolean Copy4(String SourcePath, String ToPath) {
+        long startTime=System.currentTimeMillis();
+        Boolean flag = false;
+        try (InputStream in = new FileInputStream(SourcePath);
+             OutputStream out = new FileOutputStream(ToPath);
+             BufferedInputStream bin=new BufferedInputStream(in);
+             BufferedOutputStream bout=new BufferedOutputStream(out)) {
+            int len = 0;
+            byte[] buffer=new byte[1024];
+            while ((len =bin.read(buffer)) > 0) {
+                bout.write(buffer,0,len);
+            }
+            flag = true;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        long endTime=System.currentTimeMillis();
+        System.out.println("原始流复制文件，一次读取1K的复制耗时:"+(endTime - startTime) +"ms");
+        return flag;
+    }
+}
+
+```
+
+### 字符转换流
+
+字符转换流包括InputStreaReader（字符输入转换流）和OutputStreamWriter（字符输出转换流）
+
+#### InputStreamReader
+
+解决不同编码时，字符流读取文本内容乱码的问题
+
+解决思路：先获取文件的原始字节流，再按照其真实的字符集编码转换成字符输入流，这样就能解决乱码问题了
+
+构造器： 
+
+InputStreamReader（InputStream is）	把原始的字节输入流，按照代码默认编码转换成字符输入流（与直接使用FileReader一样）
+
+InputStreamReader（InputStream is，String charset）	把原始的字节输入流，按照指定字符集转换成字符输入流（重点）
+
+常用第二个构造器
 
