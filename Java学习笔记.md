@@ -7163,3 +7163,99 @@ public class ChangeStreamDemo {
 }
 ```
 
+### 打印流
+
+PrintStream和PrintWriter都是打印流，前者是字节流，后者是字符流
+
+作用：打印流可以实现更方便、高效的打印数据出去，能实现打印什么出去就是什么出去，打印流基本可以代替前面的输出流
+
+#### PrintStream
+
+构造器：
+
+PrintStream（OutputStream/File/String）						 打印流直接通向字节输出流/文件/文件路径
+
+PrintStream（String fileName，Charset charset）				   可以指定写出去的字符编码
+
+PrintStream（OutputStream out，boolean  autoFlush）			可以指定实现自动刷新
+
+PrintStream（OutputStream out，boolean  autoFlush，String encoding）   可以指定实现自动刷新，并可指定字符的编码
+
+常用方法：
+
+void  println（Xxx  xx）							打印任意类型的数据出去
+
+void  write（int/byte[]/byte[]一部分）				可以支持写字节数据出去
+
+```java
+public class PrintStreamDemo {
+    public static void main(String[] args) {
+        try(//字节流的打印流，想要追加模式，就需要先通过低级流来声明，然后传给高级流
+                PrintStream pout=new PrintStream(new FileOutputStream("FileAndIO/src/IO/PrintStream/file.txt",true));
+                //PrintStream pout=new PrintStream(new FileOutputStream("FileAndIO/src/IO/PrintStream/file.txt"));
+                ) {
+            pout.println(2);
+            pout.println("ad");
+            pout.println('a');
+            pout.println('@');
+            pout.write(97);
+            System.setOut(pout);//用来重定向println()方法
+            System.out.println("芜湖起飞");
+            pout.println();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+
+#### PrintWriter
+
+构造器：
+
+PrintWriter（OutputStream/Writer/File/String）						打印流直接通向字节输出流/字符输出流/文件/文件路径
+
+PrintWriter（String fileName，Charset charset）					      可以指定写出去的字符编码
+
+PrintWriter（OutputStream/Writer out,boolean autoFlush）			  可以指定实现自动刷新
+
+PrintWriter（OutputStream out，boolean autoFlush，String encoding）    可以指定实现自动刷新，并可指定字符的编码 
+
+常用方法：
+
+void  println（Xxx  xx）  											  打印任意类型的数据出去
+
+void  write（int/String/char[]/...）									  可以支持写字符数据出去
+
+二者区别：
+
+在打印数据的功能上是一模一样的：都是使用方便，性能高效（核心优势）
+
+PrintStream继承自字节输出流OutputStream，因此支持写字节数据的方法
+
+PrintWriter继承自字符输出流Writer，因此支持写字符数据出去。
+
+对于打印流其中一种应用：输出语句重定向，将输出在控制台的语句，输出到指定的文件中去，其实就是类似于日志了
+
+使用System类的SetOut（ PrintStream ps）来设置打印流对应的位置
+
+```java
+public class PrintWriterDemo {
+    public static void main(String[] args) {
+        try(//字符流的打印流，想要追加模式，就需要先通过低级流来声明，然后传给高级流
+            PrintWriter pout=new PrintWriter(new FileWriter("FileAndIO/src/IO/PrintStream/file.txt",true));
+            //PrintWriter pout=new PrintWriter(new FileWriter("FileAndIO/src/IO/PrintStream/file.txt"));
+        ) {
+            pout.println(2);
+            pout.println("ad");
+            pout.println('a');
+            pout.println('@');
+            pout.write(97);
+            pout.println();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+
