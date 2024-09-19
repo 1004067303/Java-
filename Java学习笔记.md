@@ -7259,3 +7259,172 @@ public class PrintWriterDemo {
 }
 ```
 
+### 数据流
+
+可以将数据和类型进行读写
+
+#### DataInputStream
+
+数据输入流用于读取数据输出流写出去的数据
+
+构造器：
+
+DataInputStream（InputStream is）						创建新数据输入流包装最基础的字节输入流
+
+常用方法：
+
+final void readByte（int  v） throws IOException				读取字节数据返回
+
+final void readInt（int  v） throws IOException				   读取int类型数据返回
+
+final void readDouble（int  v） throws IOException			   读取Double类型数据返回
+
+final void readUTF（String str） throws IOException			  读取字符串数据（UTF-8）返回
+
+void read（int/byte[]/byte[]一部分）							支持读取字节数据进来
+
+#### DataOutputStream
+
+数据输出流允许把数据和其类型一并写出去
+
+构造器：
+
+DataOutputStream（OutputStream out）					创建新数据输出流包装基础的字节输出流
+
+常用方法：
+
+final void writeByte（int  v） throws IOException				将byte类型的数据写入基础的字节输出流
+
+final void writeInt（int  v） throws IOException				   将Int类型的数据写入基础的字节输出流
+
+final void writeDouble（int  v） throws IOException			   将Double类型的数据写入基础的字节输出流
+
+final void wrtieUTF（String str） throws IOException			  将字符串数据以UTF-8编码成字节写入基础的字节输出流
+
+void write（int/byte[]/byte[]一部分）							支持写字节数据出去
+
+```java
+public class DataStreamDemo {
+    public static void main(String[] args) {
+        try (DataOutputStream out=new DataOutputStream(new FileOutputStream("FileAndIO/src/IO/DataStream/file.txt"));
+             DataInputStream in =new DataInputStream(new FileInputStream("FileAndIO/src/IO/DataStream/file.txt"))
+        ){
+            out.write(97);
+            out.writeInt(97);
+            out.writeInt(9);
+            out.writeLong(972333333);
+            out.writeBoolean(true);
+            out.writeDouble(23.1414);
+            out.writeUTF("asdasdsd芜湖");
+//读取的时候 必须按照顺序来进行读取
+            System.out.println(in.readByte());
+            System.out.println(in.readInt());
+            System.out.println(in.readInt());
+            System.out.println(in.readLong());
+            System.out.println(in.readBoolean());
+            System.out.println(in.readDouble());
+            System.out.println(in.readUTF());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+
+```
+
+### 序列化流
+
+序列化流用来将Java对象进行序列化，存储到文件中去，当然，也可以通过反序列化将其恢复成Java对象
+
+对象如果想要序列化，必须实现序列化接口（**Serializable**），如果想要不序列化某个字段，为这个字段加上**transient**那么就不会序列化了，比如密码字段，就应该要加上这个，如果想要序列化多个对象，那么就使用ArrayList集合进行序列化
+
+#### ObjectInputStream
+
+对象字节输入流，可以把存储在文件中的Java对象读入到内存中
+
+构造器：
+
+ObjectInputStream（OutputStream out）				创建对象字节输入流，包装基础的字节输入流
+
+方法：
+
+final void readObject（Object o） throws IOException		把存储在文件中的Java对象读出来
+
+#### ObjectOutputStream
+
+对象字节输出流，可以把Java对象进行序列化：把Java对象存到文件中去
+
+构造器：
+
+ObjectOutputStream（OutputStream out）				创建对象字节输出流，包装基础的字节输出流
+
+方法：
+
+final void writeObject（Object o） throws IOException		把对象写出去
+
+```java
+public class SerializableDemo {
+    public static void main(String[] args) {
+        Person p=new Person("测试",19,190);
+        try(ObjectOutputStream out=new ObjectOutputStream(new FileOutputStream("FileAndIO/src/IO/SerializableStream/file.txt"));
+            ObjectInputStream in=new ObjectInputStream(new FileInputStream("FileAndIO/src/IO/SerializableStream/file.txt"))
+        ) {
+            out.writeObject(p);
+            System.out.println("序列化成功！！！");
+            Object o = in.readObject();
+            Person p2=(Person) o;
+            System.out.println(p2);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+class Person implements Serializable {
+    String name;
+    transient int age;//不序列化年龄
+    double height;
+
+    @Override
+    public String toString() {
+        return "Person{" +
+                "name='" + name + '\'' +
+                ", age=" + age +
+                ", height=" + height +
+                '}';
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public double getHeight() {
+        return height;
+    }
+
+    public void setHeight(double height) {
+        this.height = height;
+    }
+
+    public Person() {
+    }
+
+    public Person(String name, int age, double height) {
+        this.name = name;
+        this.age = age;
+        this.height = height;
+    }
+}
+```
+
