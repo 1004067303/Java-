@@ -7428,3 +7428,42 @@ class Person implements Serializable {
 }
 ```
 
+## IO框架
+
+首先需要知道什么是框架！
+
+解决某类问题，编写的一套类、接口等，可以理解为一个半成品，大多框架都是第三方研发的
+
+好处：在框架的基础上开发，可以得到优秀的软件架构，并提高开发效率
+
+框架的形式：一般是把类、接口等编译成class形式，再压缩成一个.jar结尾的文件发行出去
+
+### Commons-io
+
+Commons-io是apache开源基金组织提供的一组关于IO操作的小框架，目的是提高IO流的开发效率
+
+[下载地址](https://commons.apache.org/proper/commons-io/download_io.cgi)
+
+FileUtils类常用方法：
+
+void copyFile（File srcFile，File destFile）						复制文件
+
+void copyDirectory（File srcDir，File destDir）					复制文件夹
+
+void deleteDirectory（File directory）							删除文件夹
+
+String readFileToString（File file，String encoding）				读数据
+
+void writeStringToFile（File file，String data，String charname，boolean append）		写数据
+
+IOUtils类常用方法
+
+int copy（InputStream inputStream，OutputStream outputStream）			复制文件
+
+int copy（Reader reader，Writer writer）									复制文件
+
+void write（String data，OutputStream output，String charsetName）			写数据
+
+导包步骤
+
+![image-20240920163903356](D:\JAVA\JavaDemo\笔记图片\image-20240920163903356-1726821544357-1.png)
