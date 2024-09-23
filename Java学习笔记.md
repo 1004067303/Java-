@@ -7467,3 +7467,106 @@ void write（String data，OutputStream output，String charsetName）			写数�
 导包步骤
 
 ![image-20240920163903356](D:\JAVA\JavaDemo\笔记图片\image-20240920163903356-1726821544357-1.png)
+
+```java
+public class IOToolsDemo {
+    public static void main(String[] args) throws IOException {
+        FileUtils.copyFile(new File("FileAndIO/src/files/测试文件夹/测试.txt"),
+                new File("FileAndIO/src/IOTool/file.txt"));
+        FileUtils.copyDirectory(new File("FileAndIO/src/files/测试文件夹"),
+                new File("FileAndIO/src/files/复制文件夹"));
+        FileUtils.deleteDirectory(new File("FileAndIO/src/files/复制文件夹"));
+        System.out.println(FileUtils.readFileToString(new File("FileAndIO/src/files/测试文件夹/测试.txt")));
+        FileUtils.writeStringToFile(new File("FileAndIO/src/files/测试文件夹/写入.txt"),"写入数据，\n测试", Charset.forName("GBK"),true);
+        //官方提供的api接口Files。如果文件存在，则会报错
+        Files.copy(Path.of("FileAndIO/src/files/测试文件夹/测试.txt"),Path.of("FileAndIO/src/files/测试文件夹/测试33.txt"));
+    }
+}
+```
+
+# 文件操作
+
+
+
+特殊文件：后缀为txt的文件，统称为普通文件，而如.xml，.ymal，.properties文件这些都称为特殊文件，配置文件
+
+对于这些特殊文件，我们主要是了解他们的特点及作用，并且学习如何使用程序读取他们里面的数据，对于通过程序往里面写数据反而比较使用的少
+
+## Properties文件
+
+对于properties文件，特点为：
+
+只能是键值对、键不能重复、文件后缀一般是.properties结尾
+
+而要操作properties文件，需要使用Properties类
+
+Properties是一个Map集合（键值对集合），但是我们一般不会当集合使用
+
+核心作用：Properties是用来代表属性文件的，通过Properties可以读写属性文件里的内容
+
+构造器：
+
+Properties（）							用于构建Properties集合对象（空容器）
+
+读取常用方法：
+
+void  load（InputStream is）				 通过字节输入流，读取属性文件里的键值对数据
+
+void  load（Reader reader）				 通过字符输入流，读取属性文件里的键值对数据
+
+String getProperty（String key）			  通过键获取值（其实就是get方法效果）
+
+Set<String>  stringPropertyNames（）	    获取全部键的集合（其实就是keySet方法的效果）
+
+写入常用方法：
+
+Object setProperty（String key，String value）		保存键值对数据到Properties对象中去
+
+void store（OutputStream os，String comments）	 把键值对数据，通过字节输出流写出到属性文件去
+
+void store（Writer w，String comments）	 		把键值对数据，通过字节输出流写出到属性文件去
+
+在指定的路径上添加users.properties文件，然后对其进行读写操作
+
+```Java
+public class PropertiesDemo {
+    public static void main(String[] args) throws IOException {
+        Properties p=new Properties();
+        System.out.println(p);
+        try (FileReader read= new FileReader("SpecialFile/src/PropertiesFile/users.properties");
+        ){
+            p.load(read);
+            System.out.println(p);
+            System.out.println(p.getProperty("test"));
+            System.out.println(p.getProperty("测试"));
+            /*p.forEach((k,v)->
+                    System.out.println(k+":"+v));*/
+            System.out.println("===========");
+            //添加数据
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        FileWriter writer=new FileWriter("SpecialFile/src/PropertiesFile/users.properties");
+        p.setProperty("芜湖2","起飞！");
+        System.out.println("添加之后的："+p);
+        p.store(writer,"添加了属性");
+    }
+}
+```
+
+只要满足是键值对这样形式的文件，不论后缀，都可以使用Properties类来进行操作它，如操作txt文件
+
+```Java
+public class PropertiesTest {
+    public static void main(String[] args) throws Exception {
+        Properties p=new Properties();
+        FileReader read=new FileReader("SpecialFile/src/PropertiesFile/users.txt");
+        p.load(read);
+        System.out.println(p);
+        System.out.println(p.getProperty("芜湖"));
+        p.setProperty("添加","2");
+        p.store(new FileWriter("SpecialFile/src/PropertiesFile/users.txt"),"添加信息");
+    }
+}
+
+```
