@@ -7570,3 +7570,260 @@ public class PropertiesTest {
 }
 
 ```
+
+## Xml文件
+
+XML全称为EXtensible Markup Language，可扩展标记语言
+
+本质是一种数据的格式，可以用来存储复杂的数据结构，和数据关系
+
+**xml的特点：**
+
+XML中的“<标签名>” 称为一个标签或者一个元素，一般是成对出现的  ：<标签名></标签名>
+
+XML中的标签名可以自定义（可扩展），但必须要正确的嵌套
+
+XML中只能有一个根标签
+
+XML中的标签可以有属性
+
+如果一个文件中防止的是XML格式的数据，这个文件就是XML文件，后缀一般要写成.xml
+
+### XML的语法规则
+
+xml文件的后缀为：.xml，文档声明必须在第一行
+
+```
+<?xml version="1.0" encoding="UTF-8" ?>
+```
+
+version：XML默认的版本号码、该属性是必须存在的
+
+encoding：本XML文件的编码格式
+
+XML中可以定义注释信息： <!-- 注释内容 -->
+
+XML中书写"<"、"&" 等，可能会出现冲突，导致报错，此时需要使用特殊字符替代
+
+| 转义    | 符号 | 意义   |
+| ------- | ---- | ------ |
+| &lt；   | <    | 小于   |
+| &gt；   | >    | 大于   |
+| &amp；  | &    | 和号   |
+| &apos； | '    | 单引号 |
+| &quot； | "    | 双引号 |
+
+XML中可以写一个CDATA的数据区： <![CDATA[  ...内容... ]]>  ,里面的内容可以随便写
+
+### XML的作用和应用场景
+
+本质是一种数据格式，可以存储复杂的数据结构，和数据关系
+
+应用场景：经常用来做系统的配置文件；或者作为一种特殊的数据结构，在网络中进行传输
+
+### 读取XML
+
+同样，想要读取XML文件，我们也是采用框架，这里使用的是Dom4j框架，框架的下载引入和之前一样，但是推荐到[Maven Repository](https://mvnrepository.com/)这个网站去获取，以后要使用maven和是这边比较方便全面
+
+Dom4j解析XML文件的思想：文档对象模型，通过得到Document对象来进行解析
+
+SAXReader：Dom4j提供的解析器，可以认为是代表整个Dom4j框架
+
+**构造器\方法：**
+
+SAXReader（）					    构建Dom4J的解析器对象
+
+Document  read（String url）		  把xml文件读成Document对象
+
+Document  read（InputStream is）	通过字节输入流读取Xml文件
+
+**Document提供的方法**
+
+Element getRootElement（）		   获得根元素对象
+
+**Element提供的方法**
+
+String getName（）							得到元素名字
+
+List<Element> elements（）					得到当前元素下所有子元素
+
+List<Element> elements（String name）		  得到当前元素下指定名字的子元素返回集合
+
+Element element（String name）				得到当前元素下指定名字的子元素，如果有很多名字相同的返回第一个
+
+String attributeValue（String name）			  通过属性名直接得到属性值
+
+String elementText（子元素名）				   得到指定名称的子元素的文本
+
+String getText（）							    得到文本
+
+```java
+public class XmlDemo {
+    public static void main(String[] args) throws Exception {
+        SAXReader read=new SAXReader();
+        Document doc = read.read("SpecialFile/src/XmlFile/users.xml");
+        //获取根元素
+        Element root = doc.getRootElement();
+        System.out.println("根元素的名字："+root.getName());
+        //获取根元素下所有子元素
+        List<Element> elements = root.elements();
+        for (Element element : elements) {
+            System.out.println("根元素下所有子元素："+ element.getName());
+        }
+        //获取指定子元素集合
+        List<Element> users = root.elements("user");
+        for (Element user : users) {
+            System.out.println("根元素下指定子元素："+user.getName()+"值为："+user.elementTextTrim("name"));
+        }
+        //获取指定子元素
+        Element user = root.element("user");
+        System.out.println("根元素下指定子元素："+user.getName()+"值为："+user.elementText("name"));
+        //获取属性列表
+        List<Attribute> attributes = user.attributes();
+        for (Attribute attribute : attributes) {
+            System.out.println("属性为："+attribute.getName()+",值为："+attribute.getText());
+        }
+        //获取单个属性
+        Attribute id = user.attribute("id");
+        System.out.println("单个属性为："+id.getName()+",值为："+id.getText());
+    }
+}
+```
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+
+    <users>
+        <user id="1" name="asd">
+            <name> 测试</name>
+            <age>24</age>
+            <math>87</math>
+            <msg>特殊字符 3>2&lt;&gt;&amp;</msg>
+        </user>
+        <user id="2">
+            <name> 测试2</name>
+            <age>32</age>
+            <math>76</math>
+            <msg>
+                <![CDATA[3>2&1<4]]>
+            </msg>
+        </user>
+        <user>
+            <name> 测试3</name>
+            <age>44</age>
+            <math>80</math>
+            <msg></msg>
+        </user>
+        <user>
+            <name> 测试4</name>
+            <age>26</age>
+            <math>97</math>
+            <msg></msg>
+        </user>
+    </users>
+
+
+```
+
+### 写入xml
+
+一般不使用框架，而是直接拼接好XML格式的字符串，然后直接进行写入,建议使用StringBuilder来拼接
+
+```java
+public class CreateXml {
+    /**
+     * 将xml格式的字符串写入到xml文件中去
+     * <?xml version="1.0" encoding="UTF-8" ?>
+     *     <user>
+     *             <name> 测试</name>
+     *             <age>24</age>
+     *             <math>87</math>
+     *             <msg>特殊字符 3>2&lt;&gt;&amp;</msg>
+     *     </user>
+     * @param args
+     */
+    public static void main(String[] args) {
+        StringBuilder s=new StringBuilder();
+        StringBuilder msg = s.append("<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\r\n")
+                .append("<user>\r\n").append("<name> 测试</name>\r\n").append("<msg>特殊字符 3>2&lt;&gt;&amp;</msg>\r\n")
+                .append("</user>");
+        System.out.println(msg);
+        try( BufferedWriter bw=new BufferedWriter(new FileWriter("SpecialFile/src/XmlFile/create.xml"));) {
+           bw.write(msg.toString());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+
+## 日志
+
+日志技术一般用来记录各种信息，用来程序上线之后调试程序
+
+可以将系统执行的信息，方便的记录到指定的位置（控制台，文件中，数据库中）。
+
+可以随时以开关的形式控制日志的启停，无序到源码中去进行修改
+
+日志技术的体系
+
+日志框架主要有：JUL（java.util.logging）、Log4j、Logback和其他实现的。
+
+而每个日志框架都必须基于日志接口标准，主要的日志接口标准有：Commons Logging（JCL）、Simple Logging Facade For Java（SLF4J）
+
+JUL是基于JCL标准的，而Log4j和Logback是基于SLF4J标准的
+
+现在一般适用LogBack
+
+### LogBack
+
+LogBack日志框架官网：[Logback Home (qos.ch)](https://logback.qos.ch/)
+
+LogBack日志框架有以下几个模块：
+
+logback-core：基础模块，是其他两个模块依赖的基础（必须有）
+
+logback-classic：完整实现了slf4j API的模块（必须有）
+
+logback-access：与Tomcat和Jetty等Servlet容器集成，以提供HTTP访问日志的功能（可选）
+
+想要使用Logback日志框架，至少需要再项目中整合如下三个模块：
+
+slf4j-api：日志接口		logback-core		logback-classic
+
+#### 快速入门使用logback
+
+将上面三个模块的jar包导入项目中
+
+将logback框架的核心配置文件logback.xml直接拷贝到src目录下（必须是src目录下）
+
+创建Logback框架提供的Logger对象，然后用Logger对象调用其提供的方法就可以记录系统的日志信息
+
+info（记录信息），debug（记录信息）、error（记录信息）
+
+```java
+public static  fianl Logger log=LoggerFactory.getLogger("类名");
+log.info("信息");
+```
+
+#### 核心配置文件logback.xml
+
+对logback日志框架进行控制的
+
+日志的输出位置、输出格式的设置
+
+通常可以设置2个输出日志的位置：一个是控制台、一个是系统文件中
+
+<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+
+<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+开启日志（ALL），取消日志（OFF）
+
+```xml
+<root level="ALL">
+	<appender-ref ref="CONSOLE" />
+    <appender-ref ref="FILE" />
+</root>
+```
+
