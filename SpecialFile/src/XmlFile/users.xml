@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+    <users>
+        <user id="1" name="asd">
+            <name> 测试</name>
+            <age>24</age>
+            <math>87</math>
+            <msg>特殊字符 3>2&lt;&gt;&amp;</msg>
+        </user>
+        <user id="2">
+            <name> 测试2</name>
+            <age>32</age>
+            <math>76</math>
+            <msg>
+                <![CDATA[3>2&1<4]]>
+            </msg>
+        </user>
+        <user>
+            <name> 测试3</name>
+            <age>44</age>
+            <math>80</math>
+            <msg></msg>
+        </user>
+        <user>
+            <name> 测试4</name>
+            <age>26</age>
+            <math>97</math>
+            <msg></msg>
+        </user>
+    </users>
+
