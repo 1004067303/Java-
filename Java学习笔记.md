@@ -7910,3 +7910,217 @@ public class Test {
 
 ```
 
+# 多线程
+
+线程（Thread）是一个程序内部的一条执行流程，如果程序中只有一条执行流程，那么这个程序就是单线程程序
+
+多线程是指从软硬件上实现的多条执行流程的技术（多条线程由CPU负责调度执行）
+
+如何在程序中创建多条线程：
+
+在Java中，通过Java.lang.Thread类的对象来代表线程
+
+## 创建多线程方法一：继承Thread类
+
+1、定义一个子类MyThread（名字随便）继承线程类Java.lang.Thread，重写run方法
+
+2、常见MyThread类的对象
+
+3、调用线程对象的start（）方法启动线程（启动后执行的还是run方法）（Start方法主要用于向CPU把线程对象注册为单独的执行流程
+
+优缺点：
+
+优点：编码简单
+
+缺点：线程类已经集成Thread类，无法继承其他类，不利于功能扩展
+
+#### 注意事项
+
+1、启动线程必须是调用start（）方法，不是调用run方法
+
+​	直接调用run方法会被当成普通方法来执行，相当于还是在原来的线程上执行，还是单线程
+
+​	只有调用start方法才是启动一个新的线程执行
+
+2、不要把主线程任务放在启动子线程之前
+
+​	这样主线程一直是先跑完，也会相当于一个单线程的效果了
+
+```java
+public class MyThread extends Thread{
+    @Override
+    public void run() {
+        for (int i = 0; i < 10; i++) {
+            System.out.println("子线程1(Thread)执行:"+(i+1));
+        }
+    }
+}
+```
+
+```java
+public class MyThreadDemo {
+    public static void main(String[] args) {
+        MyThread thread=new MyThread();
+        thread.start();
+        for (int i = 0; i < 5; i++) {
+            System.out.println("主线程1执行:"+(i+1));
+        }
+    }
+}
+```
+
+## 创建多线程方法二：实现Runnable接口
+
+1、定义一个线程任务类MyRunnable实现Runnable接口，重写run（）方法
+
+2、创建MyRunnable任务对象
+
+3、把MyRunnable任务对象交给Thread处理
+
+​	Thread类提供的构造器： public Thread（Runnable target）   封装Runnable对象成线程对象
+
+调用线程对象的start（）方法启动线程
+
+优缺点：
+
+优点：任务类只是实现接口，可以继承其他类，实现其他类，扩展性更强
+
+缺点：需要多一个Runnable对象
+
+```java
+public class MyRunnable implements Runnable{
+    @Override
+    public void run() {
+        for (int i = 0; i < 10; i++) {
+            System.out.println("子线程2(Runnable)执行:"+(i+1));
+        }
+    }
+}
+```
+
+```java
+public class MyThreadDemo {
+    public static void main(String[] args) {
+        MyThread thread=new MyThread();
+        thread.start();
+
+       /* MyRunnable runnable=new MyRunnable();
+        Thread thread1 = new Thread(runnable);
+        thread1.start();*/
+        new Thread(new MyRunnable()).start();
+        //lambda表达式编写，因为可以创建匿名内部类
+        new Thread(()-> {
+                for (int i = 0; i < 10; i++) {
+                    System.out.println("子线程2(Runnable)Lambda执行:" + (i + 1));
+                }
+        }).start();
+
+        for (int i = 0; i < 5; i++) {
+            System.out.println("主线程1执行:"+(i+1));
+        }
+    }
+}
+```
+
+## 创建多线程的方法三：实现Callable接口
+
+之前的两种方法都不能返回数据，而想要返回数据就需要使用callable接口，Callable接口也是函数式接口，也可匿名内部类创建
+
+当然，也可以不返回数据
+
+JDK5.0开始提供Callable接口和FutureTask类来实现（多线程的第三种创建方式），可以返回线程执行完毕后的结果
+
+创建过程：
+
+1、创建任务对象
+
+​	定义一个类实现Callable接口，重写call方法，封装要做的事情，和要返回的数据
+
+​	把Callable类型的对象封装成FutureRak（线程任务对象）
+
+2、把线程任务对象交给Thread对象
+
+3、调用Thread对象的start方法启动线程
+
+4、线程执行完毕之后、通过FutureTask对象的get方法去获取线程任务执行的结果
+
+FutureTask的API
+
+构造器：
+
+FutureTask<>（Callable call）					   把Callable对象封装成FutureTask对象
+
+方法：
+
+T get（） throws Exception						获取线程执行call方法返回的结果
+
+优缺点
+
+优点：线程任务类只是实现接口，可以继承类和实现接口，扩展性强，可以在线程执行完毕后去获取线程执行的结果
+
+缺点：编码稍微复杂一点
+
+MyCallable
+
+```java
+public class MyCallable implements Callable<String> {
+    public  int n;
+    public MyCallable(int n){
+        this.n=n;
+    }
+    @Override
+    public String call() throws Exception {
+        //获取1-n的值
+        int sum=0;
+        for (int i = 1; i <= n; i++) {
+            sum+=i;
+        }
+        return "1-"+n+"的和为："+sum;
+    }
+}
+```
+
+MyCallable2
+
+```java
+public class MyCallable2 implements Callable {
+    @Override
+    public Object call() throws Exception {
+        for (int i = 0; i < 10; i++) {
+            System.out.println("子线程1(Thread)执行:"+(i+1));
+        }
+        return null;
+    }
+}
+```
+
+```java
+public class CallableDemo {
+    public static void main(String[] args) {
+        //创建Callable对象
+        MyCallable call=new MyCallable(100);
+        //将Callable对象封装为FutureTask对象，并确定返回的类型
+        //FutureTask的作用
+        //是一个任务对象，实现类Runnable接口，因此可以通过Thread类实例化
+        //可以在线程执行完毕之后，调用get方法获取执行完毕之后返回的值
+        FutureTask<String> task=new FutureTask<>(call);
+        //将FutureTask封装为Thread类并执行
+        new Thread(task).start();
+
+        try {
+            //注意，此处需要对异常进行处理，或者抛异常，调用get时，主线程会进入阻塞，等到子线程执行完毕才会继续执行，以次来保证子线程执行完毕
+            System.out.println(task.get());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        MyCallable2 call2=new MyCallable2();
+        FutureTask<String> task2=new FutureTask<>(call2);
+        new Thread(task2).start();
+        for (int i = 0; i < 5; i++) {
+            System.out.println("主线程1执行:"+(i+1));
+        }
+    }
+}
+```
+
