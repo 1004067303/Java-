@@ -8124,3 +8124,28 @@ public class CallableDemo {
 }
 ```
 
+## Thread的常见方法
+
+Thread的常用构造器：
+
+Thread（String name）						可以为当前线程指定名称
+
+Thread（Runnable target）					 封装Runnable对象成线程对象
+
+Thread（Runnable target，String name）		封装Runnable对象成线程对象，并指定线程名称
+
+Thread的常用方法：
+
+void run（）									  线程的任务方法
+
+void start（）									启动线程
+
+String getName（）							     获取当前线程的名称，线程名称默认是Thread-索引
+
+void setName（String name）					   为线程设置名称
+
+static Thread currentThread（）					获取当前执行的线程对象
+
+static void sleep（long time）					    让当前执行的线程休眠多少毫秒后，再继续执行
+
+final void join（）...								让调用当前这个方法的线程先执行完！
