@@ -8149,3 +8149,197 @@ static Thread currentThread（）					获取当前执行的线程对象
 static void sleep（long time）					    让当前执行的线程休眠多少毫秒后，再继续执行
 
 final void join（）...								让调用当前这个方法的线程先执行完！
+
+定义MyThread2
+
+```java
+public class MyThread2 extends Thread {
+    public MyThread2(String name){
+        super(name);
+    }
+    public MyThread2(){
+
+    }
+    @Override
+    public void run() {
+        for (int i = 0; i < 10; i++) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            System.out.println(Thread.currentThread().getName()+"线程(Thread)执行:"+(i+1));
+        }
+    }
+}
+```
+
+实现常用方法的调用
+
+```java
+public class ThreadMethodDemo {
+    public static void main(String[] args) throws Exception {
+        //Thread t1=new MyThread2();
+        Thread t1=new MyThread2("线程1");
+        System.out.println(t1.getName());
+        t1.start();
+        t1.join();
+
+
+        //Thread t2=new MyThread2();
+        Thread t2=new MyThread2("线程2");
+        System.out.println(t2.getName());
+        t2.start();
+        t2.join();
+
+
+        //Thread t3=new MyThread2();
+        Thread t3=new MyThread2("线程3");
+        System.out.println(t3.getName());
+        t3.start();
+        t3.join();
+
+
+        System.out.println("当前线程为："+Thread.currentThread().getName());
+        for (int i = 0; i < 10; i++) {
+            System.out.println(Thread.currentThread().getName()+"线程(Thread)执行:"+(i+1));
+        }
+    }
+}
+```
+
+## 线程安全问题
+
+多个线程，同时操作同一个资源的时候，可能会出现业务安全问题，这就是线程安全问题
+
+例子：取钱的线程安全问题
+
+两个人同时去银行对同一个账户进行取钱，各取一万，且账户里面只有一万块钱，那么就会可能出现都取到了一万，银行亏一万，很明显这是不行的，这就是线程的安全问题。
+
+模拟安全问题
+
+账户类
+
+```java
+public class Account{
+    String account;
+    Double money;
+
+    public Account() {
+    }
+
+    public Account(String account, Double money) {
+        this.account = account;
+        this.money = money;
+    }
+
+    public void subMoney(){
+        if(money>=10000) {
+            System.out.println(Thread.currentThread().getName() + "取了一万");
+            money = money - 10000;
+            System.out.println(Thread.currentThread().getName() + "取钱后剩余：" + money);
+        }else {
+            System.out.println(Thread.currentThread().getName()+"取钱时余额不足");
+        }
+    }
+    @Override
+    public String toString() {
+        return "Account{" +
+                "account='" + account + '\'' +
+                ", money=" + money +
+                '}';
+    }
+
+    public String getAccount() {
+        return account;
+    }
+
+    public void setAccount(String account) {
+        this.account = account;
+
+    }
+
+    public Double getMoney() {
+        return money;
+    }
+
+    public void setMoney(Double money) {
+        this.money = money;
+    }
+}
+
+```
+
+操作类
+
+```java
+public class UnSafeThread extends Thread{
+    Account a;
+    public UnSafeThread(Account a,String name ) {
+        super(name);
+        this.a = a;
+    }
+    @Override
+    public void run() {
+        a.subMoney();
+    }
+}
+
+```
+
+主方法
+
+```java
+public class ThreadSafeDemo {
+    public static void main(String[] args) {
+        Account t1=new Account("芜湖",10000.0);
+        System.out.println(t1);
+        Thread t2=new UnSafeThread(t1,"芜湖");
+        Thread t3=new UnSafeThread(t1,"起飞");
+        t2.start();
+        t3.start();
+    }
+}
+```
+
+### 解决线程安全问题
+
+基于synchronized有三种方法：同步代码块、同步方法、Lock锁
+
+#### 同步代码块
+
+synchronized（锁对象）{
+
+访问资源的核心代码
+
+}
+
+对代码块进行加锁
+
+建议使用共享资源作为锁对象，对于实例方法建议使用this作为锁对象，
+
+对于静态方法建议使用字节码（类名.class）对象作为锁对象
+
+#### 同步方法
+
+作用：把访问资源的核心方法给上锁，以次来保证线程的安全
+
+修饰符 synchronized 返回值类型 方法名 （形参列表）{
+
+​	操作共享资源的代码
+
+}
+
+原理：每次只能一个线程进入，执行完毕之后自动解锁，其他线程才可以进来执行
+
+底层原理：
+
+同步方法其实底层也是有隐式锁对象的，只是锁的范围是整个方法代码
+
+如果方法是实例方法：同步方法默认用this作为锁的对象
+
+如果方法是静态方法：同步方法默认用类名.class作为锁对象
+
+
+
+#### Lock锁
