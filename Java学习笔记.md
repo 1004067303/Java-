@@ -8304,7 +8304,7 @@ public class ThreadSafeDemo {
 
 ### 解决线程安全问题
 
-基于synchronized有三种方法：同步代码块、同步方法、Lock锁
+基于synchronized有三种方法：同步代码块、同步方法、Lock锁，详细的可以去看[Java多线程——synchronized使用详解](https://blog.csdn.net/zhangqiluGrubby/article/details/80500505)
 
 #### 同步代码块
 
@@ -8340,6 +8340,161 @@ synchronized（锁对象）{
 
 如果方法是静态方法：同步方法默认用类名.class作为锁对象
 
+**对于同步方法和同步代码块二者谁更好**
 
+范围上：同步代码块锁的范围更小，同步方法锁的范围更大
+
+可读性：同步方法更好
 
 #### Lock锁
+
+Lock锁是JDK5开始提供的一个新的锁定操作，通过它可以创建出锁对象进行加锁和解锁，更灵活、更方便、更强大
+
+Lock是接口，不能直接实例化，可以采用它的实现类ReentrantLock来构建Lock锁对象
+
+构造器
+
+public ReentrantLock（）			获取Lock锁的实现类对象
+
+Lock的常用方法
+
+void lock（）						获得锁
+
+void unlock（）					   释放锁
+
+Account类
+
+```java
+public class Account{
+    String account;
+    Double money;
+    private Lock lk=new ReentrantLock();
+    public Account() {
+    }
+
+    public Account(String account, Double money) {
+        this.account = account;
+        this.money = money;
+    }
+
+    public void subMoney(){
+        //对于实例方法，一般使用this来作为锁对象  同步代码块
+        synchronized (this) {
+            if(money>=10000) {
+                System.out.println(Thread.currentThread().getName() + "取了一万");
+                money = money - 10000;
+                System.out.println(Thread.currentThread().getName() + "取钱后剩余：" + money);
+            }else {
+                System.out.println(Thread.currentThread().getName()+"取钱时余额不足");
+            }
+        }
+    }
+    //同步方法
+    public synchronized void subMoney2(){
+            if(money>=10000) {
+                System.out.println(Thread.currentThread().getName() + "取了一万");
+                money = money - 10000;
+                System.out.println(Thread.currentThread().getName() + "取钱后剩余：" + money);
+            }else {
+                System.out.println(Thread.currentThread().getName()+"取钱时余额不足");
+            }
+
+    }
+
+    //同步锁 可以在任意的地方进行加锁，更加的方便，但是需要释放资源 使用try-finally
+    public  void subMoney3(){
+        try{
+            lk.lock();
+        if(money>=10000) {
+            System.out.println(Thread.currentThread().getName() + "取了一万");
+            money = money - 10000;
+            System.out.println(Thread.currentThread().getName() + "取钱后剩余：" + money);
+        }else {
+            System.out.println(Thread.currentThread().getName()+"取钱时余额不足");
+        }}
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        finally {
+            lk.unlock();
+        }
+
+    }
+    @Override
+    public String toString() {
+        return "Account{" +
+                "account='" + account + '\'' +
+                ", money=" + money +
+                '}';
+    }
+
+    public String getAccount() {
+        return account;
+    }
+
+    public void setAccount(String account) {
+        this.account = account;
+
+    }
+
+    public Double getMoney() {
+        return money;
+    }
+
+    public void setMoney(Double money) {
+        this.money = money;
+    }
+}
+```
+
+safeThread
+
+```java
+public class SafeThread extends Thread{
+    Account a;
+    public SafeThread(Account a, String name ) {
+        super(name);
+        this.a = a;
+    }
+    @Override
+    public void run() {
+        //a.subMoney();
+        //a.subMoney2();
+        a.subMoney3();
+    }
+}
+```
+
+ThreadMethodDemo
+
+```java
+public class ThreadMethodDemo {
+    public static void main(String[] args) throws Exception {
+        //Thread t1=new MyThread2();
+        Thread t1=new MyThread2("线程1");
+        System.out.println(t1.getName());
+        t1.start();
+        t1.join();
+
+
+        //Thread t2=new MyThread2();
+        Thread t2=new MyThread2("线程2");
+        System.out.println(t2.getName());
+        t2.start();
+        t2.join();
+
+
+        //Thread t3=new MyThread2();
+        Thread t3=new MyThread2("线程3");
+        System.out.println(t3.getName());
+        t3.start();
+        t3.join();
+
+
+        System.out.println("当前线程为："+Thread.currentThread().getName());
+        for (int i = 0; i < 10; i++) {
+            System.out.println(Thread.currentThread().getName()+"线程(Thread)执行:"+(i+1));
+        }
+    }
+}
+```
