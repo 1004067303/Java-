@@ -44,7 +44,7 @@ public class ThreadCommunicateDemo {
     static class transit{
         List<String> msg=new ArrayList<>();
         public transit(){
-
+            System.out.println("初始化！");
         }
         synchronized void create(){
             try {
