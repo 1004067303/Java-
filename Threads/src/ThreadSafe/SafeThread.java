@@ -8,8 +8,10 @@ public class SafeThread extends Thread{
     }
     @Override
     public void run() {
-        //a.subMoney();
-        //a.subMoney2();
+        /*
+        a.subMoney();
+        a.subMoney2();
+        */
         a.subMoney3();
     }
 }
