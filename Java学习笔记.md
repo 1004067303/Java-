@@ -8304,7 +8304,9 @@ public class ThreadSafeDemo {
 
 ### 解决线程安全问题
 
+
 基于synchronized有三种方法：同步代码块、同步方法、Lock锁，详细的可以去看[Java多线程——synchronized使用详解](https://blog.csdn.net/zhangqiluGrubby/article/details/80500505)
+
 
 #### 同步代码块
 
@@ -8339,6 +8341,7 @@ synchronized（锁对象）{
 如果方法是实例方法：同步方法默认用this作为锁的对象
 
 如果方法是静态方法：同步方法默认用类名.class作为锁对象
+
 
 **对于同步方法和同步代码块二者谁更好**
 
@@ -8601,4 +8604,9 @@ public class ThreadCommunicateDemo {
 }
 
 ```
+
+=======
+
+
+#### Lock锁
 

@@ -13,5 +13,7 @@ public class SafeThread extends Thread{
         a.subMoney2();
         */
         a.subMoney3();
+
+      
     }
 }
