@@ -40,9 +40,6 @@ public class ThreadCommunicateDemo {
                 tran.use();
             }
         },"消费者2").start();
-
-
-
     }
     static class transit{
         List<String> msg=new ArrayList<>();
