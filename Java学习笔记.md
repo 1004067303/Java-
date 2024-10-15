@@ -8304,7 +8304,9 @@ public class ThreadSafeDemo {
 
 ### 解决线程安全问题
 
-基于synchronized有三种方法：同步代码块、同步方法、Lock锁
+
+基于synchronized有三种方法：同步代码块、同步方法、Lock锁，详细的可以去看[Java多线程——synchronized使用详解](https://blog.csdn.net/zhangqiluGrubby/article/details/80500505)
+
 
 #### 同步代码块
 
@@ -8341,5 +8343,270 @@ synchronized（锁对象）{
 如果方法是静态方法：同步方法默认用类名.class作为锁对象
 
 
+**对于同步方法和同步代码块二者谁更好**
+
+范围上：同步代码块锁的范围更小，同步方法锁的范围更大
+
+可读性：同步方法更好
 
 #### Lock锁
+
+Lock锁是JDK5开始提供的一个新的锁定操作，通过它可以创建出锁对象进行加锁和解锁，更灵活、更方便、更强大
+
+Lock是接口，不能直接实例化，可以采用它的实现类ReentrantLock来构建Lock锁对象
+
+构造器
+
+public ReentrantLock（）			获取Lock锁的实现类对象
+
+Lock的常用方法
+
+void lock（）						获得锁
+
+void unlock（）					   释放锁
+
+Account类
+
+```java
+public class Account{
+    String account;
+    Double money;
+    private Lock lk=new ReentrantLock();
+    public Account() {
+    }
+
+    public Account(String account, Double money) {
+        this.account = account;
+        this.money = money;
+    }
+
+    public void subMoney(){
+        //对于实例方法，一般使用this来作为锁对象  同步代码块
+        synchronized (this) {
+            if(money>=10000) {
+                System.out.println(Thread.currentThread().getName() + "取了一万");
+                money = money - 10000;
+                System.out.println(Thread.currentThread().getName() + "取钱后剩余：" + money);
+            }else {
+                System.out.println(Thread.currentThread().getName()+"取钱时余额不足");
+            }
+        }
+    }
+    //同步方法
+    public synchronized void subMoney2(){
+            if(money>=10000) {
+                System.out.println(Thread.currentThread().getName() + "取了一万");
+                money = money - 10000;
+                System.out.println(Thread.currentThread().getName() + "取钱后剩余：" + money);
+            }else {
+                System.out.println(Thread.currentThread().getName()+"取钱时余额不足");
+            }
+
+    }
+
+    //同步锁 可以在任意的地方进行加锁，更加的方便，但是需要释放资源 使用try-finally
+    public  void subMoney3(){
+        try{
+            lk.lock();
+        if(money>=10000) {
+            System.out.println(Thread.currentThread().getName() + "取了一万");
+            money = money - 10000;
+            System.out.println(Thread.currentThread().getName() + "取钱后剩余：" + money);
+        }else {
+            System.out.println(Thread.currentThread().getName()+"取钱时余额不足");
+        }}
+        catch (Exception e){
+            e.printStackTrace();
+        }
+        finally {
+            lk.unlock();
+        }
+
+    }
+    @Override
+    public String toString() {
+        return "Account{" +
+                "account='" + account + '\'' +
+                ", money=" + money +
+                '}';
+    }
+
+    public String getAccount() {
+        return account;
+    }
+
+    public void setAccount(String account) {
+        this.account = account;
+
+    }
+
+    public Double getMoney() {
+        return money;
+    }
+
+    public void setMoney(Double money) {
+        this.money = money;
+    }
+}
+```
+
+safeThread
+
+```java
+public class SafeThread extends Thread{
+    Account a;
+    public SafeThread(Account a, String name ) {
+        super(name);
+        this.a = a;
+    }
+    @Override
+    public void run() {
+        //a.subMoney();
+        //a.subMoney2();
+        a.subMoney3();
+    }
+}
+```
+
+ThreadMethodDemo
+
+```java
+public class ThreadMethodDemo {
+    public static void main(String[] args) throws Exception {
+        //Thread t1=new MyThread2();
+        Thread t1=new MyThread2("线程1");
+        System.out.println(t1.getName());
+        t1.start();
+        t1.join();
+
+
+        //Thread t2=new MyThread2();
+        Thread t2=new MyThread2("线程2");
+        System.out.println(t2.getName());
+        t2.start();
+        t2.join();
+
+
+        //Thread t3=new MyThread2();
+        Thread t3=new MyThread2("线程3");
+        System.out.println(t3.getName());
+        t3.start();
+        t3.join();
+
+
+        System.out.println("当前线程为："+Thread.currentThread().getName());
+        for (int i = 0; i < 10; i++) {
+            System.out.println(Thread.currentThread().getName()+"线程(Thread)执行:"+(i+1));
+        }
+    }
+}
+```
+
+## 线程间通信
+
+当多个线程共同操作共享的资源时，线程间通过某种方式相互告知自身的状态，以相互协调，并避免无效的资源争夺
+
+线程通信的常见模型（生产者消费者模型）
+
+生成者线程负责生产数据
+
+消费者线程负责消费数据
+
+注意：生产者生产完数据应该等待自己，通知消费者消费，消费者消费完数据也应该等待自己，再通知生产者生产
+
+Object类的等待和唤醒方法：
+
+void  wait（）				让当前线程等待并释放所占锁，直到另一个线程调用notify（）方法或者notifyAll（）方法
+
+void  notify（）			     唤醒正在等待的单个线程
+
+void notifyAll（）			  唤醒正在等待的所有线程
+
+注意：上述方法应该使用当前同步锁对象进行调用
+
+```java
+public class ThreadCommunicateDemo {
+    public static void main(String[] args) {
+        /*
+        生产者线程： 生成消息给到待消费队列
+        消费者线程： 在待消费队列消费消息
+        代消费队列： 用于作为生产者和消费者之间中转，两种线程来进行竞争，作为锁对象
+         */
+        transit tran=new transit();
+        new Thread (()->{
+            while(true) {
+                tran.create();
+            }
+        },"生产者1").start();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true) {
+                    tran.create();
+                }
+            }
+        },"生产者2").start();
+        new Thread (()->{
+            while(true) {
+                tran.create();
+            }
+        },"生产者3").start();
+        new Thread (()->{
+            while(true) {
+                tran.use();
+            }
+        },"消费者1").start();
+        new Thread (()->{
+            while(true) {
+                tran.use();
+            }
+        },"消费者2").start();
+
+
+
+    }
+    static class transit{
+        List<String> msg=new ArrayList<>();
+        public transit(){
+
+        }
+        synchronized void create(){
+            try {
+                if(msg.size()==0){
+                    msg.add(Thread.currentThread().getName() +"生产的产品");
+                    System.out.println(Thread.currentThread().getName()+"生产了产品");
+                    Thread.sleep(2000);
+                }
+                //无论是否有产品生产 都需要唤醒其他线程，然后自己陷入等待
+                this.notifyAll();
+                this.wait();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        synchronized void use(){
+            try {
+                if(msg.size()>0){
+                    //消费完消息，把中转站清空
+                    System.out.println(Thread.currentThread().getName()+"消费了"+msg.get(0));
+                    msg.clear();
+                }
+                //无论是否有产品可以消费 都需要唤醒其他线程，然后自己陷入等待
+                this.notifyAll();
+                this.wait();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+
+```
+
+=======
+
+
+#### Lock锁
+
