@@ -14,6 +14,7 @@
       <module fileurl="file://$PROJECT_DIR$/Regex/Regex.iml" filepath="$PROJECT_DIR$/Regex/Regex.iml" />
       <module fileurl="file://$PROJECT_DIR$/SpecialFile/SpecialFile.iml" filepath="$PROJECT_DIR$/SpecialFile/SpecialFile.iml" />
       <module fileurl="file://$PROJECT_DIR$/Stream/Stream.iml" filepath="$PROJECT_DIR$/Stream/Stream.iml" />
+      <module fileurl="file://$PROJECT_DIR$/ThreadPools/ThreadPools.iml" filepath="$PROJECT_DIR$/ThreadPools/ThreadPools.iml" />
       <module fileurl="file://$PROJECT_DIR$/Threads/Threads.iml" filepath="$PROJECT_DIR$/Threads/Threads.iml" />
       <module fileurl="file://$PROJECT_DIR$/UtlisTools/UtlisTools.iml" filepath="$PROJECT_DIR$/UtlisTools/UtlisTools.iml" />
     </modules>
