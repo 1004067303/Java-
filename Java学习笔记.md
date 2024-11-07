@@ -8146,7 +8146,9 @@ void setName（String name）					   为线程设置名称
 
 static Thread currentThread（）					获取当前执行的线程对象
 
-static void sleep（long time）					    让当前执行的线程休眠多少毫秒后，再继续执行
+static void sleep（long time）					    让当前执行的线程休眠多少毫秒后，再继续执行,不会释放锁
+
+static void wait （long time）					     让当前执行的线程休眠多少毫秒后，再继续执行,会释放锁
 
 final void join（）...								让调用当前这个方法的线程先执行完！
 
@@ -8668,3 +8670,192 @@ ThreadPoolExecutor.DiscardPolicy			    丢弃任务，但是不抛出异常，�
 ThreadPoolExecutor.DiscardOldestPolicy		 抛弃队列中等待时间最久的任务，然后把当前任务加入到队列中
 
 ThreadPoolExecutor.CallerRunsPolicy		       由主线程负责调用任务的run方法从而绕过线程池直接执行
+
+```java
+public class ThreadPoolExecutorDemo {
+    /*
+        int corePoolSize,  核心线程数
+        int maximumPoolSize,    最大线程数
+        long keepAliveTime,   额外线程存活时间
+        TimeUnit unit,      时间单位
+        BlockingQueue<Runnable> workQueue,   任务队列，等待执行的队列
+        ThreadFactory threadFactory ,     线程工厂 一般直接使用默认的
+        RejectedExecutionHandler handler  拒绝策略，当核心线程都在忙，达到最大线程数，且任务队列都满了，则进行拒绝策略
+     */
+    public static void main(String[] args) throws ExecutionException, InterruptedException {
+        ThreadPoolExecutor pool = new ThreadPoolExecutor(3, 5, 10, TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(3), Executors.defaultThreadFactory(),
+                new ThreadPoolExecutor.AbortPolicy());
+        /* 对于不是无限等待
+        //三个线程分别执行
+        pool.execute(new myRunnable(10));//线程池会自动创建一个新线程，用来处理任务
+        pool.execute(new myRunnable(20));//线程池会自动创建一个新线程，用来处理任务
+        pool.execute(new myRunnable(30));//线程池会自动创建一个新线程，用来处理任务
+        //达到三个核心线程数，会复用前面的线程，此时因为任务队列未满
+        pool.execute(new myRunnable(40));
+        pool.execute(new myRunnable(50));
+        */
+        /*
+        //三个线程分别执行   无限等待
+        pool.execute(new myRunnable2(10));//线程池会自动创建一个新线程，用来处理任务
+        pool.execute(new myRunnable2(20));//线程池会自动创建一个新线程，用来处理任务
+        pool.execute(new myRunnable2(30));//线程池会自动创建一个新线程，用来处理任务
+        //达到三个核心线程数，会复用前面的线程，此时因为任务队列未满
+        pool.execute(new myRunnable2(40));
+        pool.execute(new myRunnable2(50));
+        pool.execute(new myRunnable2(50));
+        //任务队列堆满，开始新增临时线程
+        pool.execute(new myRunnable2(60));
+        pool.execute(new myRunnable2(70));
+        //最大线程全部在忙，且队列满，走拒绝策略  java.util.concurrent.RejectedExecutionException
+        pool.execute(new myRunnable2(70));
+
+*/
+        Future f1 = pool.submit(new myCallable(10));
+        Future f2 = pool.submit(new myCallable(20));
+        Future f3 = pool.submit(new myCallable(30));
+        Future f4 = pool.submit(new myCallable(40));
+        Future f5 = pool.submit(new myCallable(50));
+        System.out.println(f1.get());
+        System.out.println(f2.get());
+        System.out.println(f3.get());
+        System.out.println(f4.get());
+        System.out.println(f5.get());
+
+        //pool.shutdown();//线程池所有线程执行完毕之后关闭线程池
+        pool.shutdownNow();//立即关闭线程池，无论是否执行完毕
+    }
+}
+
+class myRunnable implements Runnable{
+    int a;
+    public myRunnable(int n){
+        this.a=n;
+    }
+    @Override
+    public void run() {
+        int sum=0;
+        for (int i = 1; i <= a; i++) {
+            sum+=i;
+        }
+        System.out.println(Thread.currentThread().getName()+"对"+a+"求和得到："+sum);
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+class myRunnable2 implements Runnable{
+    int a;
+    public myRunnable2(int n){
+        this.a=n;
+    }
+    @Override
+    public void run() {
+        int sum=0;
+        for (int i = 1; i <= a; i++) {
+            sum+=i;
+        }
+        System.out.println(Thread.currentThread().getName()+"对"+a+"求和得到："+sum);
+        try {
+            Thread.sleep(Integer.MAX_VALUE);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+
+class myCallable implements Callable{
+    int  n;
+    public myCallable(int n){
+        this.n=n;
+    }
+    @Override
+    public Object call() throws Exception {
+        int sum=0;
+        for (int i = 1; i <= n; i++) {
+            sum+=i;
+        }
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return Thread.currentThread().getName()+"对"+n+"求和得到："+sum;
+    }
+}
+
+```
+
+### Executors创建线程池
+
+Executors是一个线程池的工具类，提供了很多静态方法用于返回不同特点的线程池对象
+
+ public static ExecutorService newFixedThreadPool（int nThreads）			创建固定线程数量的线程池，如果某个线程因为执行异常而结束，那么线程池会补充一个新线程替代它
+
+public static ExecutorService newSingleThreadExecutor（）					创建只有一个线程的线程池对象，如果该线程出现异常而结束，那么线程池会补充一个线程
+
+public static ExecutorService newCachedThreadPool（）					     线程数量随着任务增加而增加，如果线程任务执行完毕且空闲了60秒则会被回收
+
+public static ScheduledExecutorService newSchaeduledThreadPool（int corePoolSize）	创建一个线程池，可以实现在给定的延迟后运行任务，或者定时执行任务
+
+这些方法的底层，都是通过线程池的实现类ThreadPoolExecutor创建的线程池对象
+
+缺陷：大型并发环境下，使用Executors可能会出现系统风险
+
+因为使用Executors创建的线程池，
+
+FixedThreadPool和SingleThreadPool的任务队列长度默认是Integer.MAX_VALUE，可能会堆积大量的请求，最后造成OOM（out of memory)，即内存溢出
+
+CachedThreadPool和ScheduledThreadPool允许创建线程数量为Integer.MAX_VALUE，可能会创建大量的线程，也可能会造成OOM（out of memory)，即内存溢出
+
+那么对于核心线程数应该配置为多少，一般按照两个标准
+
+计算密集型任务：核心线程数量=CPU核数+1
+
+IO密集型任务：核心线程数量=CPU核数*2
+
+当然，并不绝对，看开发环境而言，也需要压力测试
+
+## 并发、并行、多线程生命周期
+
+对于这个，想看更详细的就看这篇
+
+[并发、并行、同步、异步、多线程理论篇]: https://blog.csdn.net/qq_48024671/article/details/138949814?spm=1001.2014.3001.5502
+
+首先我们需要知道，什么是进程，进程是正在运行的程序（软件）
+
+而线程是属于进程的，一个进程可以运行多个线程。
+
+进程中的多个线程是并发和并行执行的
+
+### 并发
+
+进程中的线程是由CPU负责调度执行的，但CPU能同时处理线程的数量有限，为了保证全部线程都能往前执行，CPU会轮询为系统的每个线程服务，由于CPU切换的速度很快，给我们的感觉这些线程在同时执行，这就是并发
+
+实际上就是，虚假的同时进行，本质上还是，只是切换的够快，给人一种是同时执行的感觉
+
+### 并行
+
+在同一时刻上，同时由多个线程在被CPU调度执行
+
+如八核，每个核运行不一样的线程
+
+### 生命周期
+
+线程的六种状态
+
+NEW（新建）					现成刚被创建，未启动
+
+Runnable（可运行）			    线程已经调用了start（），等待CPU调度
+
+Blocked（锁阻塞）				线程在执行的时候未竞争到锁对象，则该线程进入Blocked状态
+
+Waiting（无限等待）			    一个线程进行Waiting状态，另一个线程调用notify或者notifyAll方法才能唤醒
+
+Timed Waiting（计时等待）		同Waiting状态，有几个方法（sleep、wait）有超时参数，调用他们将进入Timed Waiting状态
+
+Teminated（被终止）			  因为run方法正常退出或死亡，或者因为没有捕获的异常终止了run方法而死亡
+
+注意：等待唤醒之后都需要去重新竞争锁对象，除非调用的是sleep，这是带着锁等待
