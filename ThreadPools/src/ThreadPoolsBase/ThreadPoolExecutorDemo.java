@@ -2,7 +2,7 @@ package ThreadPoolsBase;
 
 import java.util.concurrent.*;
 
-public class ThreadPoolDemo {
+public class ThreadPoolExecutorDemo {
     /*
         int corePoolSize,  核心线程数
         int maximumPoolSize,    最大线程数
@@ -16,6 +16,9 @@ public class ThreadPoolDemo {
         ThreadPoolExecutor pool = new ThreadPoolExecutor(3, 5, 10, TimeUnit.SECONDS,
                 new ArrayBlockingQueue<>(3), Executors.defaultThreadFactory(),
                 new ThreadPoolExecutor.AbortPolicy());
+        //ExecutorService pool = Executors.newFixedThreadPool(3);//创建指定数量线程的线程池，如果出现异常，自动补充线程
+        //ExecutorService pool = Executors.newSingleThreadExecutor();//创建一个线程的线程池，如果出现异常，自动补充线程
+        //ExecutorService pool = Executors.newCachedThreadPool();//线程数量随着任务增加而增加，如果线程任务执行完毕且空闲了60秒则会被回收
         /* 对于不是无限等待
         //三个线程分别执行
         pool.execute(new myRunnable(10));//线程池会自动创建一个新线程，用来处理任务
@@ -46,7 +49,6 @@ public class ThreadPoolDemo {
         Future f3 = pool.submit(new myCallable(30));
         Future f4 = pool.submit(new myCallable(40));
         Future f5 = pool.submit(new myCallable(50));
-
         System.out.println(f1.get());
         System.out.println(f2.get());
         System.out.println(f3.get());
@@ -109,7 +111,7 @@ class myCallable implements Callable{
             sum+=i;
         }
         try {
-            Thread.sleep(200);
+            Thread.sleep(2000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
