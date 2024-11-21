@@ -9023,6 +9023,8 @@ int getLength（）															获取数据包，实际接收到的字节个�
 
 示例代码
 
+发送消息到服务端
+
 客户端
 
 ```java
@@ -9077,3 +9079,136 @@ TCP主要有三个步骤实现可靠传输：三次握手建立连接，传输�
 
 对于三次握手和四次挥手，详情看[通俗易懂理解三次握手、四次挥手（TCP）-阿里云开发者社区](https://developer.aliyun.com/article/1589401)
 
+Java提供了Java.net.Socket类来实现TCP通信
+
+客户端程序就是通过java.net包下的Socket类来实现的
+
+构造器
+
+Socket（String host，int port）			根据指定的服务器ip、端口号请求与服务器建立连接，连接通过，就获得了客户端Socket
+
+常用方法
+
+OutputStream getOutputStream（）		 获得字节输出流对象
+
+InputStream getInputStream（）			获得字节输入流对象
+
+服务端程序是通过Java.net包下的ServerSocket类来实现的
+
+构造器
+
+ServerSocket（int port）			   为服务端程序注册端口
+
+常用方法
+
+Socket accept（）					阻塞等待客户端的连接请求，一旦与某个客户端成功连接，则返回服务端这边的Socket对象 
+
+#### TCP实现群聊
+
+服务端
+
+```java
+public class qlServer {
+    //群聊转发服务
+    public  static ArrayList<Socket> onlineSockets=new ArrayList<>();//用于存储在线的Socket客户端与服务器连接
+    public static void main(String[] args) throws IOException {
+        ThreadPoolExecutor pool=new ThreadPoolExecutor(3,5,10, TimeUnit.MINUTES,
+                new ArrayBlockingQueue<>(3),
+                Executors.defaultThreadFactory(),new ThreadPoolExecutor.AbortPolicy());
+        ServerSocket serverSocket=new ServerSocket(9999);
+        System.out.println("服务端启动！！！！！");
+        while(true) {
+                Socket socket = serverSocket.accept();
+                onlineSockets.add(socket);//连接成功就添加进去
+                //new Thread(new ReceiveMsg(socket)).start();
+                pool.submit(new ReceiveMsg(socket));
+        }
+
+    }
+}
+class ReceiveMsg implements Runnable{
+    public  Socket socket;
+    public ReceiveMsg(Socket socket){
+        this.socket=socket;
+    }
+    public ReceiveMsg(){
+
+    }
+    @Override
+    public void run() {
+        System.out.println(socket.getRemoteSocketAddress()+"连接成功！！！！");
+        try {
+            InputStream in = socket.getInputStream();
+            DataInputStream din=new DataInputStream(in);
+            while (true){
+                String msg = din.readUTF();
+                System.out.println(socket.getRemoteSocketAddress()+"发送的数据为："+msg);
+                sendMsgToALl(msg);
+            }
+        } catch (IOException e) {
+            qlServer.onlineSockets.remove(socket);
+            System.out.println(socket.getRemoteSocketAddress()+"离线了！！！");
+        }
+    }
+
+    private void sendMsgToALl(String msg) throws IOException {
+        for (Socket socket : qlServer.onlineSockets) {
+            OutputStream out = socket.getOutputStream();
+            DataOutputStream dout=new DataOutputStream(out);
+            dout.writeUTF(msg);
+            dout.flush();
+        }
+    }
+}
+```
+
+客户端
+
+```java
+public class qlClient {
+    //群聊客户端需要能发能收
+    public static void main(String[] args) throws IOException {
+        Socket client=new Socket("localhost",9999);
+        System.out.println("客户端启动！！！！！");
+        new Thread(new ClintReceive(client)).start();//启动接收线程
+        OutputStream out = client.getOutputStream();
+        DataOutputStream dout=new DataOutputStream(out);
+        Scanner sc=new Scanner(System.in);
+        while(true){
+            System.out.print("请输入：");
+            String msg = sc.nextLine();
+            if(msg.equals("exit")){
+                System.out.println( "当前客户端下线！！！");
+                sc.close();
+                dout.close();
+                out.close();
+                client.close();
+                break;
+            }
+            dout.writeUTF(msg);
+            dout.flush();
+        }
+    }
+}
+class ClintReceive implements Runnable {
+public Socket socket;
+public ClintReceive(Socket socket){
+    this.socket=socket;
+}
+    @Override
+    public void run() {
+    try {
+        System.out.println(socket.getRemoteSocketAddress() +"接收服务启动！！！");
+        InputStream in = socket.getInputStream();
+        DataInputStream din = new DataInputStream(in);
+        while (true) {
+            String msg = din.readUTF();
+            System.out.println(socket.getRemoteSocketAddress() + "发来的：" + msg);
+        }
+    }catch (Exception e)
+    {
+        System.out.println(socket.getRemoteSocketAddress() + "下线");
+    }
+    }
+}
+```
