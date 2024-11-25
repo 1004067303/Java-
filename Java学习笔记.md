@@ -8611,6 +8611,10 @@ public class ThreadCommunicateDemo {
 
 线程池是一个可以复用线程的技术
 
+原理及队列详细可查看：
+
+[Java 线程池原理和队列详解_java threadpooltaskexecutor 设置队列类型-CSDN博客](https://blog.csdn.net/bingguang1993/article/details/105822328/)
+
 不使用线程池的问题：
 
 用户每发起一个请求，后台就需要创建一个新线程来处理，下次来新任务又需要创建新的线程来进行处理，而创建新线程的开销是很大的，并且请求过多时，肯定会产生大量的线程出来，这样会严重影响系统的性能
@@ -9216,3 +9220,76 @@ public ClintReceive(Socket socket){
 ### WebSocket
 
 实现WebSocket，不需要客户端，只需要一个服务端，即BS架构
+
+![image-20241125172318755](D:\JAVA\JavaDemo\笔记图片\image-20241125172318755-1732526600396-1.png)
+
+```java
+public class WebSocketService {
+    public static void main(String[] args) throws Exception {
+        ServerSocket serverSocket=new ServerSocket(9999);
+        /*
+        int corePoolSize,
+                              int maximumPoolSize,
+                              long keepAliveTime,
+                              TimeUnit unit,
+                              BlockingQueue<Runnable> workQueue,
+                              ThreadFactory threadFactory,
+                              RejectedExecutionHandler handler
+         */
+        ThreadPoolExecutor pool=new ThreadPoolExecutor(16*2,
+                32,
+                10,
+                TimeUnit.SECONDS,
+                new ArrayBlockingQueue<>(8),
+                Executors.defaultThreadFactory(),
+                new ThreadPoolExecutor.AbortPolicy());
+
+        while (true){
+            Socket socket = serverSocket.accept();
+            System.out.println(socket.getRemoteSocketAddress()+" 上线了！！！");
+            //new Thread(new webOut(socket)).start();
+            pool.submit(new webOut(socket));
+
+
+        }
+
+
+    }
+}
+class webOut implements Runnable {
+public  Socket socket;
+    public webOut(Socket socket){
+        this.socket=socket;
+    }
+    @Override
+    public void run() {
+        OutputStream out = null;
+        PrintStream pout=null;
+        try {
+            out = socket.getOutputStream();
+            pout=new PrintStream(out);
+            pout.println("HTTP/1.1 200 OK");
+            pout.println("Content-type:text/html;charset=UTF-8");
+            pout.println();
+            pout.println("<div>芜湖起飞！！<div>");
+            pout.flush();
+            out.close();
+            pout.close();
+            socket.close();
+
+        } catch (IOException e) {
+            System.out.println(e);
+            try {
+                out.close();
+                pout.close();
+                socket.close();
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        }
+
+    }
+}
+
+```
+
