@@ -9215,4 +9215,4 @@ public ClintReceive(Socket socket){
 
 ### WebSocket
 
-实现WebSocket
+实现WebSocket，不需要客户端，只需要一个服务端，即BS架构
