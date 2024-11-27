@@ -9314,3 +9314,150 @@ public  Socket socket;
 3、测试方法上必须声明@Test注解，然后再测试方法中，编写代码调用被测试的业务方法进行测试
 
 4、开始测试：选中测试方法，右键选择“JUnit运行”，如果测试通过则是绿色，失败则是红色
+
+在Junit单元测试框架常见注解
+
+Junit 4.x版本
+
+| 注解         | 说明                                                         |
+| ------------ | ------------------------------------------------------------ |
+| @Test        | 测试类中的方法必须用它修饰才能成为测试方法，才能启动执行     |
+| @Before      | 用来修饰一个实例方法，该方法会在每一个测试方法执行之前执行一次 |
+| @After       | 用来修饰一个实例方法，该方法会在每一个测试方法执行之后执行一次 |
+| @BeforeClass | 用来修饰一个静态方法，该方法会在所有测试方法之前只执行一次   |
+| @AfterClass  | 用来修饰一个静态方法，该方法会在所有测试方法之后只执行一次   |
+
+Junit 5.x版本
+
+| 注解        | 说明                                                         |
+| ----------- | ------------------------------------------------------------ |
+| @Test       | 测试类中的方法必须用它修饰才能成为测试方法，才能启动执行     |
+| @BeforeEach | 用来修饰一个实例方法，该方法会在每一个测试方法执行之前执行一次 |
+| @AfterEach  | 用来修饰一个实例方法，该方法会在每一个测试方法执行之后执行一次 |
+| @BeforeAll  | 用来修饰一个静态方法，该方法会在所有测试方法之前只执行一次   |
+| @AfterAll   | 用来修饰一个静态方法，该方法会在所有测试方法之后只执行一次   |
+
+在测试方法执行前执行的方法，常用于：初始化资源
+
+在测试方法执行完再执行的方法，常用于：释放资源
+
+需要测试的方法
+
+```java
+public class MyUtils {
+    public static int getMaxIndex(String msg){
+        int length=0;
+        if(msg==null||msg==""){
+            length= -1;
+        }else{
+        length=msg.length()-1;
+        }
+        return length;
+    }
+
+
+    public static void getLength(String msg){
+        System.out.println(msg+"的长度为："+msg.length());
+    }
+}
+```
+
+测试方法
+
+```java
+import JunitUtils.MyUtils;
+import org.junit.*;
+
+
+public class MyUtilsTest {
+    @BeforeClass//在Junit5之后变成BeforeALL,一般用来释放资源
+    public static void BeforeClass(){
+        System.out.println("BeforeClass----->只执行一次，在所有之前！！");
+    }
+    @Before//在Junit5之后变成BeforeEach
+    public void before(){
+        System.out.println("before------->执行！！！");
+    }
+    @org.junit.Test
+    public void getMaxIndex() {
+        int index1 = MyUtils.getMaxIndex("芜湖起飞！！");
+        System.out.println(index1);
+        System.out.println(MyUtils.getMaxIndex(""));
+        int index2 = MyUtils.getMaxIndex(null);
+        System.out.println(index2);
+        //断言机制
+        Assert.assertEquals("getMaxIndex方法存在问题",5,index1);
+
+    }
+
+    @org.junit.Test
+    public void getLength() {
+        MyUtils.getLength("芜湖起飞！！！");
+        MyUtils.getLength("");
+       // MyUtils.getLength(null);
+
+    }
+    @AfterClass//在Junit5之后变成AfterALL
+    public static void AfterClass(){
+        System.out.println("AfterClass----->只执行一次，在所有之后！！");
+    }
+    @After//在Junit5之后变成AfterEach
+    public void After(){
+        System.out.println("After------>执行");
+    }
+}
+```
+
+
+
+# 反射
+
+反射（Reflection）：就是加载类，并允许以编程的方式解剖类中的各种成分（成员方法、方法、构造器等）
+
+反射学什么？
+
+主要学习获取类的信息、操作他们
+
+1、反射第一步：加载类，获取类的字节码：Class 对象
+
+获取对象的三种方式：
+
+Class c1= 类名.class;
+
+调用Class提供方法：public static Class forName(String package);
+
+Object提供的方法：public Class getClass（）；Class c3=对象.getClass（）；
+
+```java
+public class ReflectionDemo1 {
+    public static void main(String[] args) throws ClassNotFoundException {
+        //方法一
+        Class<TestClass> c1 = TestClass.class;
+        System.out.println(c1);
+        System.out.println(c1.getName());//获取全称，带包名路径
+        System.out.println(c1.getSimpleName());//获取简单名字
+
+        System.out.println("==============================================");
+        //这里是我引用了我其他的模块
+        //方法二
+        Class<?> c2 = Class.forName("com.Jha.Obj.ATM.Account");
+        System.out.println(c2);
+        System.out.println(c2.getName());//获取全称，带包名路径
+        System.out.println(c2.getSimpleName());//获取简单名字
+        System.out.println("==============================================");
+        //方法三
+        TestClass test=new TestClass();
+        Class<? extends TestClass> c3 = (Class<? extends TestClass>) test.getClass();
+        System.out.println(c3);
+        System.out.println(c3.getName());//获取全称，带包名路径
+        System.out.println(c3.getSimpleName());//获取简单名字
+        System.out.println(c3 == c1);//同一个类，获取到的是一样的对象，每个类只有一个对应的class对象
+    }
+}
+```
+
+2、获取类的构造器：Constructor对象
+
+3、获取类的成员变量：Field对象
+
+4、获取类的成员方法：Method对象
