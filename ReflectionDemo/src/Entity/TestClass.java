@@ -7,15 +7,41 @@ public class TestClass {
     protected String address;
 
     public TestClass() {
+        System.out.println("无参方法调用");
+    }
+    private TestClass(String name,String sex){
+        this.name=name;
+        this.sex=sex;
+        System.out.println("私有有参方法调用");
     }
     public void myMethod(){
         System.out.println("这是测试方法！");
     }
-    public TestClass(String name, String sex, int age, String address) {
+    public TestClass(String name, String sex, Integer age, String address) {
         this.name = name;
         this.sex = sex;
-        this.age = age;
+        this.setAge(age);
         this.address = address;
+        System.out.println("公开有参方法调用");
+    }
+
+    public void showMsg(){
+        System.out.println(getName()+"今年"+getAge()+"岁");
+    }
+    private void showMsg(String msg){
+        System.out.println(getName()+"今年"+getAge()+"岁,"+msg);
+    }
+    private int methodDemo(){
+        return getAge();
+    }
+    @Override
+    public String toString() {
+        return "TestClass{" +
+                "name='" + name + '\'' +
+                ", sex='" + sex + '\'' +
+                ", age=" + age +
+                ", address='" + address + '\'' +
+                '}';
     }
 
     public String getName() {

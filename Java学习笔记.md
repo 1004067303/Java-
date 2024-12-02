@@ -9418,6 +9418,87 @@ public class MyUtilsTest {
 
 主要学习获取类的信息、操作他们
 
+共用的TestClass
+
+```java
+public class TestClass {
+    public String  name;
+    public String sex;
+    private int age;
+    protected String address;
+
+    public TestClass() {
+        System.out.println("无参方法调用");
+    }
+    private TestClass(String name,String sex){
+        this.name=name;
+        this.sex=sex;
+        System.out.println("私有有参方法调用");
+    }
+    public void myMethod(){
+        System.out.println("这是测试方法！");
+    }
+    public TestClass(String name, String sex, Integer age, String address) {
+        this.name = name;
+        this.sex = sex;
+        this.setAge(age);
+        this.address = address;
+        System.out.println("公开有参方法调用");
+    }
+
+    public void showMsg(){
+        System.out.println(getName()+"今年"+getAge()+"岁");
+    }
+    private void showMsg(String msg){
+        System.out.println(getName()+"今年"+getAge()+"岁,"+msg);
+    }
+    private int methodDemo(){
+        return getAge();
+    }
+    @Override
+    public String toString() {
+        return "TestClass{" +
+                "name='" + name + '\'' +
+                ", sex='" + sex + '\'' +
+                ", age=" + age +
+                ", address='" + address + '\'' +
+                '}';
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getSex() {
+        return sex;
+    }
+
+    public void setSex(String sex) {
+        this.sex = sex;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+}
+```
+
 1、反射第一步：加载类，获取类的字节码：Class 对象
 
 获取对象的三种方式：
@@ -9458,6 +9539,172 @@ public class ReflectionDemo1 {
 
 2、获取类的构造器：Constructor对象
 
+Class提供了从类中获取构造器的方法
+
+Constructor<?>[] getConstructors（）						获取全部构造器（只能获取public修饰的）
+
+Constructor<?>[] getDeclaredConstructors（）				获取全部构造器（只要存在就能拿到）
+
+Constructor<T> getConstructor（Class<?>... parameterTypes）   获取某个构造器（只能获取public修饰的）
+
+Constructor<T> getDeclaredConstructor（Class<?>... parameterTypes）  获取某个构造器（只要存在就能拿到）
+
+对构造器进行操作的常用方法：
+
+T newInstance（Object... initargs）					调用此构造器对象表示的构造器，并传入参数，完成对象的初始化并返回
+
+void setAccessible（boolean flag）					 设置为true，表示禁止检查访问控制（暴力反射）
+
+```java
+public class ConstructorTest {
+    @Test
+    public void testGetConstructors() throws Exception {
+        Class<TestClass> myClass = TestClass.class;
+        //Constructor<?>[] constructors = myClass.getConstructors();//获取全部的public构造函数
+        Constructor<?>[] constructors = myClass.getDeclaredConstructors();//获取全部的构造函数
+        for (Constructor<?> constructor : constructors) {
+            System.out.println(constructor.getName()+"参数个数："+constructor.getParameterCount());
+        }
+        System.out.println("=====================================");
+        Constructor<TestClass> con =
+                myClass.getConstructor(String.class,String.class,Integer.class,String.class);//获取某个public构造器
+
+        Constructor<TestClass> con2 =
+                myClass.getDeclaredConstructor(String.class,String.class);//获取某个构造器
+
+        Constructor<TestClass> conn = myClass.getConstructor();
+        System.out.println(conn.getName()+"参数个数："+conn.getParameterCount());
+        System.out.println("================================");
+        System.out.println(con.getName()+"参数个数："+con.getParameterCount());
+        System.out.println("================================");
+        System.out.println(con2.getName()+"参数个数："+con2.getParameterCount());
+
+        TestClass testClass = conn.newInstance();
+        System.out.println(testClass);
+        System.out.println("=========================");
+        con2.setAccessible(true);//禁止访问检查，即暴力反射
+        TestClass testClass1 = con2.newInstance("芜湖", "男");
+        System.out.println(testClass1);
+    }
+}
+```
+
 3、获取类的成员变量：Field对象
 
+Class提供了从类中获取成员变量的方法
+
+Field[] getFields（）						 获取类的全部的成员变量（只能获取public修饰的）
+
+Field[] getDeclaredFields（）				 获取类的全部成员变量（只要存在就能拿到）
+
+Field getField（String name）				获取类的某个成员变量（只能获取public修饰的）
+
+Field getDeclaredField（String name）		获取类的某个成员变量（只要存在就能拿到）
+
+对成员变量操作的常用方法：
+
+void set（Object obj，Object value）			    赋值
+
+Object get（Object obj）						  取值
+
+void setAccessible（boolean flag）				设置为true，表示禁止检查访问控制（暴力反射）
+
+```java
+public class FieldTest {
+    @Test
+    public void testField() throws Exception {
+        Class myClass = TestClass.class;//获取Class对象
+
+        Field[] PFields = myClass.getFields();//获取所有的成员变量（public修饰）
+        Field[] AFields = myClass.getDeclaredFields();//获取所有的成员变量
+        System.out.println("所有public修饰的成员变量");
+        for (Field field : PFields) {
+            System.out.println(field.getName()+"类型为："+field.getType());
+        }
+        System.out.println("==========================");
+        System.out.println("所有的成员变量");
+        for (Field field : AFields) {
+            System.out.println(field.getName()+"类型为："+field.getType());
+        }
+        //对于非public修饰的成员变量，使用getDeclaredField(String name) 获取，一般建议直接使用
+        Field FName = myClass.getField("name");
+        Field FSex = myClass.getField("sex");
+        Field FAge = myClass.getDeclaredField("age");
+        Field FAddress = myClass.getDeclaredField("address");
+
+        Constructor o = myClass.getConstructor();
+        TestClass con = (TestClass) o.newInstance();
+        System.out.println("未赋值前："+con);
+        FName.set(con,"芜湖");
+        FSex.set(con,"男");
+        FAge.setAccessible(true);
+        FAge.set(con,24);//需要禁止检查访问控制
+        FAddress.setAccessible(true);
+        FAddress.set(con,"芜湖");//需要禁止检查访问控制
+        System.out.println("赋值后："+con);
+    }
+}
+```
+
 4、获取类的成员方法：Method对象
+
+Class类提供了从类中获取成员方法的API
+
+Method[] getMethods（）					获取类的全部成员方法（只能获取public修饰的）
+
+Method[] getDeclaredMethods（）			获取类的全部成员方法（只要存在就能拿到）
+
+Method getMethod（String name,Class<?>... paramterTypes）	获取类的某个成员方法（只能获取public修饰的）
+
+Method getDeclaredMethod（String name,Class<?>... paramterTypes） 获取类的某个成员方法（只要存在就能拿到）
+
+对成员方法的操作常用方法：
+
+Object invoke（Object obj，Object... args）				触发某个对象的该方法执行
+
+void setAccessible（boolean flag）						设置为true，表示禁止检查访问控制（暴力反射）
+
+```java
+public class MethodTest {
+    @Test
+    public void testMethod() throws Exception {
+        Class<TestClass> myClass = TestClass.class;
+        Method[] pMethods = myClass.getMethods();
+        Method[] aMethods = myClass.getDeclaredMethods();
+        for (Method pMethod : pMethods) {
+            System.out.println(pMethod.getName()+"参数个数："+pMethod.getParameterCount()+"返回类型："+pMethod.getReturnType());
+        }
+        System.out.println("=====================");
+        for (Method aMethod : aMethods) {
+            System.out.println(aMethod.getName()+"参数个数："+aMethod.getParameterCount()+"返回类型："+aMethod.getReturnType());
+        }
+        System.out.println("=====================");
+        Method me1=myClass.getMethod("showMsg");//获取指定方法
+        System.out.println(me1.getName()+"参数个数："+me1.getParameterCount()+"返回类型："+me1.getReturnType());
+        System.out.println("=====================");
+        Method me2=myClass.getDeclaredMethod("showMsg",String.class);//获取指定方法
+        System.out.println(me2.getName()+"参数个数："+me2.getParameterCount()+"返回类型："+me2.getReturnType());
+        System.out.println("=====================");
+        Method me3 = myClass.getDeclaredMethod("methodDemo");
+        System.out.println(me3.getName()+"参数个数："+me3.getParameterCount()+"返回类型："+me3.getReturnType());
+        System.out.println("=====================");
+
+        Constructor<TestClass> ctor = myClass.getDeclaredConstructor(String.class,String.class);
+        ctor.setAccessible(true);
+        TestClass testClass = ctor.newInstance("芜湖","男");
+        Method ageSet=myClass.getDeclaredMethod("setAge", int.class);//获取指定方法
+        ageSet.invoke(testClass,25);//设置年龄
+
+        Object o1 = me1.invoke(testClass);
+        System.out.println("出参为："+o1);
+        System.out.println("=====================");
+        me2.setAccessible(true);
+        Object o2 = me2.invoke(testClass,"起飞咯！！");
+        System.out.println("出参为："+o2);
+        System.out.println("=====================");
+        me3.setAccessible(true);
+        Object o3 = me3.invoke(testClass);
+        System.out.println("出参为："+o3);
+    }
+}
+```
