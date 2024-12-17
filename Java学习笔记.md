@@ -9499,7 +9499,7 @@ public class TestClass {
 }
 ```
 
-1、反射第一步：加载类，获取类的字节码：Class 对象
+## 1、加载类，获取类的字节码
 
 获取对象的三种方式：
 
@@ -9537,7 +9537,7 @@ public class ReflectionDemo1 {
 }
 ```
 
-2、获取类的构造器：Constructor对象
+## 2、获取类的构造器
 
 Class提供了从类中获取构造器的方法
 
@@ -9589,7 +9589,7 @@ public class ConstructorTest {
 }
 ```
 
-3、获取类的成员变量：Field对象
+## 3、获取类的成员变量
 
 Class提供了从类中获取成员变量的方法
 
@@ -9708,3 +9708,95 @@ public class MethodTest {
     }
 }
 ```
+
+## 反射的应用
+
+一般用于做Java的框架，基本上，主流的框架都会基于反射设计一些通用的功能
+
+如：对于任意一个对象，改框架都可以把对象的字段名和对应的值，保存到文件中去
+
+```java
+import Entity.TestClass;
+import org.junit.Test;
+
+import java.io.FileWriter;
+import java.io.PrintWriter;
+import java.lang.reflect.Field;
+
+public class simpleFrame {
+    public static void saveClass(Object obj) throws Exception {
+        Class<?> myClass = obj.getClass();//获取对象的Class对象
+        System.out.println(obj);
+        FileWriter ou=new FileWriter("./src/data.txt",true);
+        PrintWriter out=new PrintWriter(ou);
+        //获取所有的成员变量
+        Field[] fields = myClass.getDeclaredFields();
+        out.println("《=======================》");
+        out.println("类名："+myClass.getSimpleName());
+        //将成员变量写入文件
+        for (Field field : fields) {
+            field.setAccessible(true);
+            String name = field.getName();
+            Object value = field.get(obj);
+            out.println(name+"="+value);
+        }
+
+        ou.close();
+        out.close();
+    }
+    @Test
+    public void testSaveClass() throws Exception {
+        TestClass t=new TestClass("芜湖","男",24,"芜湖");
+        TestClass t2=new TestClass("芜湖1","男",34,"芜1湖");
+        simpleFrame.saveClass(t);
+        simpleFrame.saveClass(t2);
+    }
+}
+
+```
+
+# 注解（Annotation）
+
+注解就是Java代码里的特殊标记，比如：@Override、@Test等，作用是：让其他程序根据注解信息来决定怎么执行该程序
+
+注意：注解可以用在类上、构造器上、方法上、成员变量上、参数上、等位置处
+
+## 自定义注解
+
+自己定义的注解，格式为
+
+```java
+public @interface 注解名称{
+    public 属性类型 属性名() default 默认值;
+}
+```
+
+特殊属性名：value
+
+如果注解中只有一个value属性，使用注解时，value名称可以不写！
+
+## 注解的原理
+
+![image-20241217171211568](D:\JAVA\JavaDemo\笔记图片\image-20241217171211568-1734426736382-1.png)
+
+注解本质是一个接口，Java中所有的注解都是继承了Annotation接口的
+
+@注解(...)：其实就是一个实现类对象，实现了该注解以及Annotation接口
+
+## 元注解
+
+修饰注解的注解
+
+@Target ：声明被修饰的注解只能在哪些位置使用
+
+@Retention：声明注解的保留周期
+
+| @Target（ElementType.TYPE）     | @Retention（RetentionPolicy.RUNTIME）                       |
+| ------------------------------- | ----------------------------------------------------------- |
+| 1、TYPE    ，类、接口           | 1、SOURCE    ，只作用在源码阶段，字节码文件中不存在         |
+| 2、FIELD    ，成员变量          | 2、CLASS（默认）     ，保留到字节码文件阶段，运行阶段不存在 |
+| 3、METHOD     ，成员方法        | 3、RUNTIME（开发常用）    ，一直保留到运行阶段              |
+| 4、PARAMETER    ，方法参数      |                                                             |
+| 5、CONSTRUCTOR   ，构造器       |                                                             |
+| 6、LOCAL_VARIABLE    ，局部变量 |                                                             |
+
