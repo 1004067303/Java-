@@ -9800,3 +9800,121 @@ public @interface 注解名称{
 | 5、CONSTRUCTOR   ，构造器       |                                                             |
 | 6、LOCAL_VARIABLE    ，局部变量 |                                                             |
 
+## 注解的解析
+
+就是判断类上、方法上、成员变量上是否存在注解，并把注解里面的内容给解析出来
+
+如何解析注解：
+
+想要解析谁上面的注解，就要先拿到谁
+
+如想要解析类上面的注解，就需要先拿到该类的Class对象，在通过Class对象解析其上面的注解
+
+想要解析成员方法上的注解，则应获取改成员方法的Method对象，再通过Method对象解析其上面的注解
+
+Class、Method、Field、Constructor、都实现了AnnotatedElement接口，他们都拥有解析注解的能力
+
+**AnnotatedElement接口提供的解析注解的方法：**
+
+public Annotation [] getDeclaredAnnotations（）			获取当前对象上面的注解
+
+public T getDeclaredAnnotation（Class<T>  annotationClass） 	获取指定的注解对象
+
+public boolean isAnnotationPresent（Class<Annotation> annotationClass）	判断当前对象上是否存在某个注解
+
+应用场景：模拟Junit框架
+
+注解声明
+
+```java
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface myAnnotation3 {
+
+}
+```
+
+```java
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE,ElementType.METHOD})
+public @interface MyAnnotation1 {
+    String name() ;
+    int age() default 18;
+
+}
+```
+
+```java
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.TYPE,ElementType.METHOD})
+public @interface myAnnotation2 {
+    String value();
+    int name() default 18;
+}
+```
+
+测试
+
+```java
+public class junitFrameDemo {
+    @myAnnotation3
+    public void test1(){
+        System.out.println("test1执行！！！！！！！！！！！！！");
+    }
+    @myAnnotation3
+    public void test2(){
+        System.out.println("test2执行！！！！！！！！！！！！！");
+    }
+    //@myAnnotation3
+    public void test3(){
+        System.out.println("test3执行！！！！！！！！！！！！！");
+    }
+    @myAnnotation3
+    public void test4(){
+        System.out.println("test4执行！！！！！！！！！！！！！");
+    }
+
+    public static void main(String[] args) throws Exception {
+        Class<junitFrameDemo> myclass = junitFrameDemo.class;
+        Constructor<junitFrameDemo> constructor = myclass.getConstructor();
+        junitFrameDemo jDemo = constructor.newInstance();
+        Method[] methods = myclass.getDeclaredMethods();
+        for (Method method : methods) {
+            if(method.isAnnotationPresent(myAnnotation3.class)){
+                method.invoke(jDemo);
+            }
+        }
+
+    }
+}
+```
+
+```java
+public class demo {
+    @Test
+    public void testPressClass(){
+        Class<testAnnotation> myClass = testAnnotation.class;
+        if(myClass.isAnnotationPresent(myAnnotation2.class)){
+            myAnnotation2 anno = myClass.getDeclaredAnnotation(myAnnotation2.class);
+            System.out.println(anno.value());
+            System.out.println(anno.name());
+        }
+    }
+
+    @Test
+    public void testPressMethod() throws NoSuchMethodException {
+        Class<testAnnotation> myClass = testAnnotation.class;
+        Method test = myClass.getDeclaredMethod("test");
+
+        if(test.isAnnotationPresent(myAnnotation2.class)){
+            myAnnotation2 anno = test.getDeclaredAnnotation(myAnnotation2.class);
+            System.out.println(anno.value());
+            System.out.println(anno.name());
+        }
+    }
+}
+```
+
+# 动态代理
+
+对于动态代理，参考[java动态代理实现与原理详细分析 - Gonjian - 博客园](https://www.cnblogs.com/gonjan-blog/p/6685611.html)

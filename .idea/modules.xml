@@ -21,6 +21,7 @@
       <module fileurl="file://$PROJECT_DIR$/ThreadPools/ThreadPools.iml" filepath="$PROJECT_DIR$/ThreadPools/ThreadPools.iml" />
       <module fileurl="file://$PROJECT_DIR$/Threads/Threads.iml" filepath="$PROJECT_DIR$/Threads/Threads.iml" />
       <module fileurl="file://$PROJECT_DIR$/UtlisTools/UtlisTools.iml" filepath="$PROJECT_DIR$/UtlisTools/UtlisTools.iml" />
+      <module fileurl="file://$PROJECT_DIR$/proxyDemo/proxyDemo.iml" filepath="$PROJECT_DIR$/proxyDemo/proxyDemo.iml" />
     </modules>
   </component>
 </project>
