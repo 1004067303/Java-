@@ -28,7 +28,8 @@ public class UtlisDemo {
         Random r=new Random();
         int[] list=new int[num];
         for (int i = 0; i < list.length; i++) {
-            list[i]=r.nextInt(start,end);
+            //list[i]=r.nextInt(start,end);
+            list[i] = r.nextInt(end - start + 1) + start;
         }
         return  list;
     }

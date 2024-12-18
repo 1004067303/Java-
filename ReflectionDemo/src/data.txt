@@ -10,3 +10,15 @@ name=芜湖1
 sex=男
 age=34
 address=芜1湖
+《=======================》
+类名：TestClass
+name=芜湖
+sex=男
+age=24
+address=芜湖
+《=======================》
+类名：TestClass
+name=芜湖1
+sex=男
+age=34
+address=芜1湖
